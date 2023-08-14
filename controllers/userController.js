@@ -1,4 +1,6 @@
-export const login = (req,res) => {
+
+export const login = (req, res) => {
+    const { username, password } = req.body;
     return res.send("로그인 페이지");
 }
 
