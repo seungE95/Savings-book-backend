@@ -1,7 +1,20 @@
+import bcrypt from "bcrypt";
+import Member from "member.js";
 
-export const login = (req, res) => {
+export const login = async (req, res) => {
     const { username, password } = req.body;
-    return res.send("로그인 페이지");
+    const member = Member.findOne({ username });
+
+    if (!member) {
+        return res.status(400).send({ errorMessage: "Bad Request" });
+    }
+
+    const validationCheck = await bcrypt.compare(password, member.password);
+
+    if (!validationCheck) {
+        return res.status(400).send({ errorMessage: "Bad Request" });
+    }
+    return res.redirect("/");
 }
 
 export const signup = (req,res) => {
