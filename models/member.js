@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
 const memberSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: ture },
+  username: { type: String, required: true, unique: true },
   nick_name: { type: String, required: true },
   password: { type: String, reuquired: true },
   badge: { type: String },
