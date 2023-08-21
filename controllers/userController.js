@@ -8,7 +8,7 @@ dotenv.config("../env");
 export const login = (req, res, next) => {
     const {username, password} = req.body;
     const key = process.env.SECRET_KEY;
-
+    console.log("\n username: " + username + "\n password: " + password);
     const username1 = "id";
     const password1 = "123123";
 
@@ -36,10 +36,11 @@ export const login = (req, res, next) => {
                 token: token,
             });
         }
-    } catch{
+    } catch(error){
         return res.status(401).json({
             code:401,
             message: "로그인 정보가 잘 못 되었습니다.",
+            error: error
         });
     }
 

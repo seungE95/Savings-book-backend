@@ -3,13 +3,13 @@ require("dotenv").config();
 
 const token = () => {
   return {
-    access(id) {
-      return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
+    access(username) {
+      return jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "15m",
       });
     },
-    refresh(id) {
-      return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
+    refresh(username) {
+      return jwt.sign({ username }, process.env.REFRESH_TOKEN_SECRET, {
         expiresIn: "180 days",
       });
     }
