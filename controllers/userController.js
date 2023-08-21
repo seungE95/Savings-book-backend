@@ -1,5 +1,5 @@
 //import bcrypt from "bcrypt";
-import Member from "../models/member.js";
+import User from "../models/user.js";
 //jwt 라이브러리
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -8,8 +8,7 @@ dotenv.config("../env");
 export const login = (req, res, next) => {
     const {username, password} = req.body;
     const key = process.env.SECRET_KEY;
-    console.log("\n username: " + username + "\n password: " + password);
-    const username1 = "id";
+    const username1 = User.findOne({username});
     const password1 = "123123";
 
     let token = "";
