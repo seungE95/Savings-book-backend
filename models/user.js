@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+//import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -9,9 +9,9 @@ const userSchema = new mongoose.Schema({
   goal_nm: { type: String }
 });
 
-userSchema.pre('save', async function () {
-  this.password = await bcrypt.hash(this.password, 5);
-});
+// userSchema.pre('save', async function () {
+//   this.password = await bcrypt.hash(this.password, 5);
+// });
 
 const User = mongoose.model("user", userSchema);
 

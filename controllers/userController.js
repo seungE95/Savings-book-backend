@@ -6,13 +6,15 @@ import dotenv from "dotenv";
 dotenv.config("../env");
 
 export const login = (req, res, next) => {
-    const {username, password} = req.body;
+    const { username, password } = req.body;
+    console.log("\nusername::: " + username + "\npassword:::" + password);
+
     const key = process.env.SECRET_KEY;
-    const username1 = User.findOne({username});
+    const {username1} = User.findOne({username: 'js'});
     const password1 = "123123";
-
+    
+    console.log("\nusername1::: " + username1 + "\npassword1:::" + password1);
     let token = "";
-
     try{
         if(username == username1 && password == password1){
             //jwt.sign(payload, secretOrPrivateKey, [options, callback])

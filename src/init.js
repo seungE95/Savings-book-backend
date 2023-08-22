@@ -17,4 +17,4 @@ const handleListener = () => {
     console.log(`Hello! Savings Book start http://localhost:${PORT}`);
 }
 
-app.listen(process.env.PORT, handleListener);
+app.listen(PORT, handleListener);

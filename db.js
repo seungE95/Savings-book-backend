@@ -5,9 +5,9 @@ dotenv.config("env");
 mongoose.connect(process.env.DB_URL,{
     
 }).then(()=>{
-    console.log("\n Connected to DB 🎄");
+    console.log("\nConnected to DB 🎄");
 }).catch((error)=>{
-    console.error("\n DB Connected error::: " + error);
+    console.error("\nDB Connected error::: " + error);
 });
 
 const db = mongoose.connection;
