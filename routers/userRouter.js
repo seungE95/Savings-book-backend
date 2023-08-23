@@ -3,8 +3,8 @@ import { login, signup, nickname, userdata, home } from "../controllers/userCont
 
 const userRouter = express.Router();
 
+userRouter.get("/", home);
 userRouter.post("/login", login);
-userRouter.post("/", home);
 userRouter.post("/signup", signup);
 userRouter.get("/nickname", nickname);
 userRouter.get("/userdata", userdata);
