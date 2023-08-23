@@ -76,3 +76,7 @@ export const nickname = (req,res) => {
 export const userdata = (req,res) => {
     return res.send("유저정보");
 }
+
+export const home = (req,res) => {
+    return res.send("배포 완료");
+}
