@@ -3,7 +3,7 @@ import User from "../models/user.js";
 //jwt 라이브러리
 import jwt from "jsonwebtoken";
 //토큰 유효성 검사 미들웨어
-import { auth } from "../authMiddleware.js"
+//import { auth } from "../authMiddleware.js"
 import dotenv from "dotenv";
 dotenv.config("../env");
 

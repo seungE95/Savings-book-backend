@@ -2,8 +2,11 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config("env");
 
+mongoose.set('debug', true);
+
 mongoose.connect(process.env.DB_URL,{
-    
+    dbname: 'savingsbook',
+    useNewUrlParser: true
 }).then(()=>{
     console.log("\nConnected to DB 🎄");
 }).catch((error)=>{
