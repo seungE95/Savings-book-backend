@@ -2,12 +2,13 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
+const key = process.env.SECRET_KEY;
 
-exports.auth = (req, res, next) => {
-    const key = process.env.SECRET_KEY;
+export const auth = (req, res, next) => {
     //인증 완료
-    try{
-        //요청 헤더에 저장된 토큰(req.headers.authorization)과 비밀키를 사용하여 토큰을 req,decoded에 반환
+    try {
+        console.log(req.headers.authorization+"\n\n"+key);
+        //요청 헤더에 저장된 토큰(req.headers.authorization)과 비밀키를 사용하여 토큰을 req.decoded에 반환
         req.decoded = jwt.verify(req.headers.authorization, key);
         return next();
     } catch (error) {

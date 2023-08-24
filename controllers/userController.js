@@ -3,7 +3,7 @@ import User from "../models/user.js";
 //jwt 라이브러리
 import jwt from "jsonwebtoken";
 //토큰 유효성 검사 미들웨어
-//import { auth } from "../authMiddleware.js"
+//import auth from "../authMiddleware.js"
 import dotenv from "dotenv";
 dotenv.config("../env");
 
@@ -56,7 +56,8 @@ export const login = async (req, res) => {
         }
     }
 }
-export const signup = async (req,res) => {
+export const signup = async (req, res) => {
+    
     const { username, password, nick_name } = req.body;
     const user = await User.findOne({ username });
 
@@ -78,13 +79,19 @@ export const signup = async (req,res) => {
     }
 }
 
-export const nickname = (req, res) => {
+export const nickname = async (req, res) => {
     const username = req.decoded.username;
     const nickname = req.decoded.nickname;
     const { nick_name } = req.body;
 
-    const user = User.findByIdAndUpdate(nickname)
-    return res.send("닉네임 수정");
+    const user = await User.findByIdAndUpdate(
+        username,nick_name,{ new: true, runValidators: true }
+    )
+    return res.status(200).json({
+        result: "Y",
+        code: 200,
+        message: "닉네임 변경 완료"
+    });
 }
 
 export const userdata = (req,res) => {
