@@ -56,6 +56,7 @@ export const login = async (req, res) => {
         }
     }
 }
+
 export const signup = async (req, res) => {
     
     const { username, password, nick_name } = req.body;
@@ -80,18 +81,34 @@ export const signup = async (req, res) => {
 }
 
 export const nickname = async (req, res) => {
-    const username = req.decoded.username;
-    const nickname = req.decoded.nickname;
-    const { nick_name } = req.body;
+    console.log("\nnickname method:::");
+    //const username = req.decoded.username;
+    //const nickname = req.decoded.nickname;
+    const { username, nick_name } = req.body;
+    console.log("\nusername:::"+username+"\nnick_name"+nick_name);
+    try {
+        const user = await User.findOneAndUpdate(
+            { username },
+            {$set: {nick_name: nick_name}}
+        )
 
-    const user = await User.findByIdAndUpdate(
-        username,nick_name,{ new: true, runValidators: true }
-    )
-    return res.status(200).json({
-        result: "Y",
-        code: 200,
-        message: "닉네임 변경 완료"
-    });
+        // const user = await User.findByIdAndUpdate(
+        //     username,nick_name,{ new: true, runValidators: true }
+        // )
+        return res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "닉네임 변경 완료"
+        });
+    } catch (error){
+        return res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "닉네임 변경 실패",
+            error: error
+        });
+    }
+    
 }
 
 export const userdata = (req,res) => {
