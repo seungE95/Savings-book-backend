@@ -29,7 +29,7 @@ export const login = async (req, res) => {
                 {
                     type: "JWT",
                     username: username,
-                    nickname: user.nick_name
+                    nick_name: user.nick_name
                 },
                 key,
                 {
@@ -81,20 +81,15 @@ export const signup = async (req, res) => {
 }
 
 export const nickname = async (req, res) => {
-    console.log("\nnickname method:::");
-    //const username = req.decoded.username;
-    //const nickname = req.decoded.nickname;
-    const { username, nick_name } = req.body;
-    console.log("\nusername:::"+username+"\nnick_name"+nick_name);
+    const username = req.decoded.username;
+    const { nick_name } = req.body;
+    
     try {
         const user = await User.findOneAndUpdate(
             { username },
             {$set: {nick_name: nick_name}}
         )
 
-        // const user = await User.findByIdAndUpdate(
-        //     username,nick_name,{ new: true, runValidators: true }
-        // )
         return res.status(200).json({
             result: "Y",
             code: 200,
@@ -105,14 +100,24 @@ export const nickname = async (req, res) => {
             result: "N",
             code: 400,
             message: "닉네임 변경 실패",
-            error: error
         });
     }
     
 }
 
 export const userdata = (req,res) => {
-    return res.send("유저정보");
+    const {username, nick_name} = req.decoded;
+    console.log("\nusername:: "+username+"\nnick_name:: "+nick_name);
+
+    return res.status(200).json({
+        result: "Y",
+        code: 200,
+        message: "Success",
+        data: {
+            username: username,
+            nick_name: nick_name
+        }
+    });
 }
 
 export const home = (req,res) => {

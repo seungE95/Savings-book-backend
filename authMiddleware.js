@@ -9,7 +9,7 @@ export const auth = (req, res, next) => {
     try {
         console.log(req.headers.authorization+"\n\n"+key);
         //요청 헤더에 저장된 토큰(req.headers.authorization)과 비밀키를 사용하여 토큰을 req.decoded에 반환
-        req.decoded = jwt.verify(req.headers.authorization, key);
+        req.decoded = jwt.verify(req.headers.authorization.split('Bearer ')[1], key);
         return next();
     } catch (error) {
         //인증 실패
@@ -25,6 +25,7 @@ export const auth = (req, res, next) => {
             return res.status(401).json({
                 code: 401,
                 message: "유효하지 않은 토큰입니다.",
+                error: error
             });
         }
     }

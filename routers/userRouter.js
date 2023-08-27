@@ -7,8 +7,7 @@ const userRouter = express.Router();
 userRouter.get("/", home);
 userRouter.post("/login", login);
 userRouter.post("/signup", signup);
-userRouter.patch("/nickname", nickname);
-//userRouter.patch("/nickname", auth, nickname);
-userRouter.get("/userdata", userdata);
+userRouter.patch("/nickname", auth, nickname);
+userRouter.get("/userdata", auth, userdata);
 
 export default userRouter;
