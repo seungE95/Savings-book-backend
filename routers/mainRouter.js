@@ -23,3 +23,5 @@ mainRouter.get("/dailylist", dailylist);
 mainRouter.get("/calendar", calendar);
 mainRouter.route("/details").get(getDetails).post(postDetails).put(putDetails);
 mainRouter.get("badge", badge);
+
+export default mainRouter;
