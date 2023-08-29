@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import sequence from "mongoose-sequence";
+const seq = sequence(mongoose);
 
 const amountSchema = new mongoose.Schema({
     amount_nm: {type:Number},
@@ -15,11 +16,11 @@ const amountSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    username: {type: String}
+    username: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 
-amountSchema.plugin(sequence, {inc_field: "amount_nm"});
-
 const Amount = mongoose.model("Amount", amountSchema);
+
+amountSchema.plugin(seq, {inc_field: 'amount_nm'});
 
 export default Amount;

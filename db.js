@@ -8,7 +8,7 @@ mongoose.connect(process.env.DB_URL,{
     dbname: 'savingsbook',
     useNewUrlParser: true
 }).then(()=>{
-    console.log("\nConnected to DB 🎄");
+    console.log("\nConnected to DB 🎄"+process.env.DB_URL);
 }).catch((error)=>{
     console.error("\nDB Connected error::: " + error);
 });
