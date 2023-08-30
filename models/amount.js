@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import moment from "moment";
 import sequence from "mongoose-sequence";
 const seq = sequence(mongoose);
 
@@ -12,9 +13,9 @@ const amountSchema = new mongoose.Schema({
     },
     goal_money: {type:String},
     category: {type: String},
-    created:{
+    date:{
         type: Date,
-        default: Date.now
+        default: moment().format("YYYY-MM-DD")
     },
     username: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });

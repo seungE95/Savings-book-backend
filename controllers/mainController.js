@@ -15,14 +15,41 @@ export const monthTotal = async(req,res) => {
     res.send("monthTotal");
 }
 
-export const getGoal = (req,res) => {
-    res.send("getGoal");
+export const getGoal = async (req, res) => {
+    const { username } = req.decoded;
+    let { year, month } = req.body;
+    let date1 = year + month;
+    console.log("\nyear::: " + year + "\nmonth::: " + month + "\nusername::: " + username);
+    try {
+        if (year != null && month != null) {
+            console.log("\ndate:: "+date1);
+            //const amount = await Amount.find({ username: username});
+            const amount = await Amount.find("goal_money").where('date').in([date1]);
+            //year = amount.date().format("yyyy");
+            //console.log("\nyear:: " + year);
+            return res.status(200).json({
+                result: "Y",
+                code: 200,
+                message: "목표 금액 전송 완료",
+                data: {
+                    date: {
+                        
+                    },
+                    goal_money
+                }
+            });
+        }
+    } catch (error) { 
+        return res.status(400).json({
+
+        });
+    }
 }
 
 export const postGoal = async (req,res) => {
-    const {username} = req.decoded
-    const {year, month, goal_money} = req.body;
-    const date = year+month;
+    const { username } = req.decoded;
+    const { year, month, goal_money } = req.body;
+    const date = year + month;
     
     try{
         const user_name = await User.findOne({username: username});
