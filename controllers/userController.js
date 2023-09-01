@@ -33,7 +33,7 @@ export const login = async (req, res) => {
                 },
                 key,
                 {
-                    expiresIn: "60m",   //15분후 만료
+                    expiresIn: "360m",   //15분후 만료
                     issuer: "토큰발급자",
                 }
             );

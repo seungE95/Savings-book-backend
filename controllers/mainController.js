@@ -18,13 +18,21 @@ export const monthTotal = async(req,res) => {
 export const getGoal = async (req, res) => {
     const { username } = req.decoded;
     let { year, month } = req.body;
-    let date1 = year + month;
+    let date = year + "-" + month;
     console.log("\nyear::: " + year + "\nmonth::: " + month + "\nusername::: " + username);
     try {
         if (year != null && month != null) {
-            console.log("\ndate:: "+date1);
+            console.log("\ndate:: "+date);
             //const amount = await Amount.find({ username: username});
-            const amount = await Amount.find("goal_money").where('date').in([date1]);
+            //const amount = await Amount.find("goal_money").where('date').in([date1]);
+            const amount = await Amount.findById(username)
+                .populate({ path: "goal_money", model: User })
+                .exec((err, doc) => {
+                    if (err)
+                        return err;
+                    res.json(doc);
+                });
+            
             //year = amount.date().format("yyyy");
             //console.log("\nyear:: " + year);
             return res.status(200).json({
@@ -32,9 +40,7 @@ export const getGoal = async (req, res) => {
                 code: 200,
                 message: "목표 금액 전송 완료",
                 data: {
-                    date: {
-                        
-                    },
+                    
                     goal_money
                 }
             });
@@ -49,12 +55,12 @@ export const getGoal = async (req, res) => {
 export const postGoal = async (req,res) => {
     const { username } = req.decoded;
     const { year, month, goal_money } = req.body;
-    const date = year + month;
+    const date = year + "-" + month;
     
     try{
         const user_name = await User.findOne({username: username});
         
-        await Amount.create({date: date, goal_money: goal_money, username: user_name});
+        await Amount.create({regDate: new Date(year,month,), goal_money: goal_money, username: user_name});
 
         res.status(200).json({
             result: "Y",

@@ -3,18 +3,18 @@ import userRouter from "../routers/userRouter.js";
 import mainRouter from "../routers/mainRouter.js"
 import morgan from "morgan";
 import db from "../db.js";
-//import cors from "cors";
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
 const logger = morgan("dev");
 
-// const corsConfig = {
-//     origin: "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/",
-//     credentials: true,
-// };
+const corsConfig = {
+    origin: process.env.url,
+    credentials: true,
+};
 
-//app.use(cors(corsConfig));
+app.use(cors(corsConfig));
 // app.use((req, res) => {
 //     res.header("Access-Control-Allow-Origin", "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/");
 // });
