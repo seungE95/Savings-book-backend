@@ -10,7 +10,7 @@ const PORT = 3000;
 const logger = morgan("dev");
 
 const corsConfig = {
-    origin: process.env.url,
+    origin: "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/",
     credentials: true,
 };
 
