@@ -9,12 +9,12 @@ const app = express();
 const PORT = 3000;
 const logger = morgan("dev");
 
-const corsConfig = {
-    origin: "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/",
-    credentials: true,
-};
+// const corsConfig = {
+//     origin: "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/",
+//     credentials: true,
+// };
 
-app.use(cors(corsConfig));
+app.use(cors());
 // app.use((req, res) => {
 //     res.header("Access-Control-Allow-Origin", "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/");
 // });
