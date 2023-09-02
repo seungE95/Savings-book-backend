@@ -44,7 +44,7 @@ export const login = async (req, res) => {
                 message: "token is created",
                 access_token: token,
                 data: {
-                    nickname: user.nick_name
+                    nick_name: user.nick_name
                 }
             });
         } else {
