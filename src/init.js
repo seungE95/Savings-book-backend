@@ -9,15 +9,7 @@ const app = express();
 const PORT = 3000;
 const logger = morgan("dev");
 
-// const corsConfig = {
-//     origin: "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/",
-//     credentials: true,
-// };
-
 app.use(cors());
-// app.use((req, res) => {
-//     res.header("Access-Control-Allow-Origin", "https://port-0-savings-book-backend-eu1k2llladze0x.sel3.cloudtype.app/");
-// });
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 app.use("/", userRouter);

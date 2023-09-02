@@ -1,5 +1,7 @@
 import Amount from "../models/amount.js"
 import User from "../models/user.js"
+import moment from "moment";
+const ate = moment().format("YYYY-MM-DD");
 
 export const monthTotal = async(req,res) => {
     // const {username} = req.decoded;
@@ -17,37 +19,35 @@ export const monthTotal = async(req,res) => {
 
 export const getGoal = async (req, res) => {
     const { username } = req.decoded;
-    let { year, month } = req.body;
-    let date = year + "-" + month;
-    console.log("\nyear::: " + year + "\nmonth::: " + month + "\nusername::: " + username);
+    const { year, month } = req.body;
+    const date = year + "-" + month;
+
     try {
         if (year != null && month != null) {
-            console.log("\ndate:: "+date);
-            //const amount = await Amount.find({ username: username});
-            //const amount = await Amount.find("goal_money").where('date').in([date1]);
-            const amount = await Amount.findById(username)
-                .populate({ path: "goal_money", model: User })
-                .exec((err, doc) => {
-                    if (err)
-                        return err;
-                    res.json(doc);
-                });
+            const user = await User.findOne({username: username});            
+            const amount = await Amount.findOne({username: user._id, regDate:date});
             
-            //year = amount.date().format("yyyy");
-            //console.log("\nyear:: " + year);
+            const resYear = amount.regDate.substring(0,4);
+            const resMonth = amount.regDate.substring(5,7);
+
             return res.status(200).json({
                 result: "Y",
                 code: 200,
                 message: "목표 금액 전송 완료",
                 data: {
-                    
-                    goal_money
+                    date:{
+                        year: resYear,
+                        month: resMonth
+                    },
+                    goal_money: amount.goal_money
                 }
             });
         }
     } catch (error) { 
         return res.status(400).json({
-
+            result: "N",
+            code: 400,
+            message: "해당 날짜에 목표 금액이 없음",
         });
     }
 }
@@ -59,8 +59,7 @@ export const postGoal = async (req,res) => {
     
     try{
         const user_name = await User.findOne({username: username});
-        
-        await Amount.create({regDate: new Date(year,month,), goal_money: goal_money, username: user_name});
+        await Amount.create({regDate: date, goal_money: goal_money, username: user_name});
 
         res.status(200).json({
             result: "Y",
@@ -75,11 +74,30 @@ export const postGoal = async (req,res) => {
             error: error
         });
     }
-
 }
 
-export const putGoal = (req,res) => {
-    res.send("putGoal");
+export const putGoal = async (req,res) => {
+    const { username } = req.decoded;
+    const { year, month, goal_money } = req.body;
+    const date = year + "-" + month;
+    
+    try{
+        const user = await User.findOne({username: username});
+        await Amount.findOneAndUpdate({regDate: date,username: user._id},{goal_money: goal_money});
+
+        res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "목표 금액 수정 성공"
+        })
+    } catch (error) {
+        res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "목표 금액 수정 실패",
+            error: error
+        });
+    }
 }
 
 export const category = (req,res) => {

@@ -13,8 +13,11 @@ const amountSchema = new mongoose.Schema({
     },
     goal_money: { type:String },
     category: { type: String },
-    regDate: { type: Date },
-    username: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    regDate: {
+        type: String,
+        default: Date.now
+    },
+    username: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 const Amount = mongoose.model("Amount", amountSchema);
