@@ -112,12 +112,33 @@ export const calendar = (req,res) => {
     res.send("calendar");
 }
 
-export const getDetails = (req,res) => {
+export const getDetails = (req, res) => {
+    
     res.send("getDetails");
 }
 
-export const postDetails = (req,res) => {
-    res.send("postDetails");
+export const postDetails = async (req, res) => {
+    const { username } = req.decoded;
+    const { year, month, day, type, money, content, category } = req.body;
+    const date = year + "-" + month + "-" + day;
+
+    try {
+        const user_name = await User.findOne({ username: username });
+        await Amount.create({ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
+        Amount.amount_nm += 1;
+        res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "특정 일 수입/지출 저장 완료"
+        });
+    } catch (error) {
+        res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "특정 일 수입/지출 저장 실패",
+            error: error
+        })
+    }
 }
 
 export const putDetails = (req,res) => {

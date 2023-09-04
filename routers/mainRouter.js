@@ -21,7 +21,7 @@ mainRouter.route("/goal").get(auth, getGoal).post(auth, postGoal).put(auth, putG
 mainRouter.get("/category", category);
 mainRouter.get("/dailylist", dailylist);
 mainRouter.get("/calendar", calendar);
-mainRouter.route("/details").get(getDetails).post(postDetails).put(putDetails);
+mainRouter.route("/details").get(auth, getDetails).post(auth, postDetails).put(auth, putDetails);
 mainRouter.get("badge", badge);
 
 export default mainRouter;

@@ -17,7 +17,7 @@ app.use("/api/user", userRouter);
 app.use("/api/main", mainRouter);
 
 const handleListener = () => {
-    console.log(`Hello! Savings Book start http://localhost:${PORT}`);
+    console.log(`Hello! Savings Book start`);
 }
 
 app.listen(PORT, handleListener);
