@@ -1,12 +1,9 @@
 import mongoose from "mongoose";
-import sequence from "mongoose-sequence";
-const seq = sequence(mongoose);
+//import sequence from "mongoose-sequence";
+//const seq = sequence(mongoose);
 
 const amountSchema = new mongoose.Schema({
-    amount_nm: {
-        type: Number,
-        default: 0
-    },
+    amount_nm: {type: Number},
     content: { type: String },
     money: { type: Number },
     type: {
@@ -22,7 +19,7 @@ const amountSchema = new mongoose.Schema({
     username: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
-//amountSchema.plugin(seq, { inc_field: "amount_nm" });
 const Amount = mongoose.model("Amount", amountSchema);
+//amountSchema.plugin(seq, { inc_field: "amount_nm" });
 
 export default Amount;

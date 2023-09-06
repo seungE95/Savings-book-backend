@@ -1,7 +1,6 @@
 import Amount from "../models/amount.js"
 import User from "../models/user.js"
 import moment from "moment";
-const ate = moment().format("YYYY-MM-DD");
 
 export const monthTotal = async(req,res) => {
     // const {username} = req.decoded;
@@ -59,7 +58,9 @@ export const postGoal = async (req,res) => {
     
     try{
         const user_name = await User.findOne({username: username});
-        await Amount.create({regDate: date, goal_money: goal_money, username: user_name});
+        const amount = await Amount.create({regDate: date, goal_money: goal_money, username: user_name});
+        
+        amount.amount_nm + 1;
 
         res.status(200).json({
             result: "Y",
@@ -112,9 +113,33 @@ export const calendar = (req,res) => {
     res.send("calendar");
 }
 
-export const getDetails = (req, res) => {
-    
-    res.send("getDetails");
+export const getDetails = async (req, res) => {
+    const { username } = req.decoded;
+    const { year, month, day } = req.body;
+    const date = year + "-" + month + "-" + day;
+
+    try {
+        const user = await User.findOne({username: username});
+        const amount = await Amount.find()
+        .where('regDate').equals(date)
+        .where('username').equals(user._id)
+        .select('content').select('category').select('type').select('money');
+
+        res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data: amount
+        });
+    } catch (error) {
+        res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "fail",
+            error: error
+        })
+    }
+
 }
 
 export const postDetails = async (req, res) => {
@@ -125,7 +150,7 @@ export const postDetails = async (req, res) => {
     try {
         const user_name = await User.findOne({ username: username });
         await Amount.create({ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
-        Amount.amount_nm += 1;
+
         res.status(200).json({
             result: "Y",
             code: 200,
@@ -141,8 +166,28 @@ export const postDetails = async (req, res) => {
     }
 }
 
-export const putDetails = (req,res) => {
-    res.send("putDetails");
+export const putDetails = async (req,res) => {
+    const { username } = req.decoded;
+    const { year, month, day, _id, type, money, content, category } = req.body;
+    const date = year + "-" + month + "-" + day;
+
+    try {
+        const user_name = await User.findOne({ username: username });
+        await Amount.findOneAndUpdate({username:user_name._id, _id:_id},{ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
+
+        res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "Success"
+        });
+    } catch (error) {
+        res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "fail",
+            error: error
+        })
+    }
 }
 
 export const badge = (req,res) => {
