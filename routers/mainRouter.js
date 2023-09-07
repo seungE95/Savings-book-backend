@@ -10,6 +10,7 @@ import {
     getDetails,
     postDetails,
     putDetails,
+    deleteDetails,
     badge
 } from "../controllers/mainController.js";
 import { auth } from "../authMiddleware.js";    //token 유효성 검증
@@ -21,7 +22,7 @@ mainRouter.route("/goal").get(auth, getGoal).post(auth, postGoal).put(auth, putG
 mainRouter.get("/category", category);
 mainRouter.get("/dailylist", dailylist);
 mainRouter.get("/calendar", calendar);
-mainRouter.route("/details").get(auth, getDetails).post(auth, postDetails).put(auth, putDetails);
+mainRouter.route("/details").get(auth, getDetails).post(auth, postDetails).put(auth, putDetails).delete(auth, deleteDetails);
 mainRouter.get("badge", badge);
 
 export default mainRouter;

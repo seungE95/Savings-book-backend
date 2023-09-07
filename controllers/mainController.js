@@ -189,6 +189,17 @@ export const putDetails = async (req,res) => {
     }
 }
 
+export const deleteDetails = (req,res) => {
+    const { username } = req.decoded;
+    const { _id } = req.body;
+
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
 export const badge = (req,res) => {
     res.send("badge");
 }
