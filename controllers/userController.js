@@ -61,7 +61,7 @@ export const signup = async (req, res) => {
     
     const { username, password, nick_name } = req.body;
     const user = await User.findOne({ username });
-
+    console.log("\nusername::: "+username+"\npassword::: "+password+"\nnick_name::: "+nick_name);
     if (!user) {
         const hashed = await bcrypt.hash(password, 10);
         User.create({ username, password: hashed, nick_name });
