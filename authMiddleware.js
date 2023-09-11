@@ -7,8 +7,9 @@ const key = process.env.SECRET_KEY;
 export const auth = (req, res, next) => {
     //인증 완료
     try {
-        console.log("\nauthorization::: "+ JSON.stringify(req.headers.access_token));
+        console.log("\nauthorization::: "+ JSON.stringify(req.header.access_token));
         console.log("\naccess_token::: "+ req.headers.access_token);
+        console.log("\naccess_token::: "+ req.header.access_token);
         //console.log("\nauthorization::: "+ req.headers.authorization.split('Bearer ')[1]);
         //요청 헤더에 저장된 토큰(req.headers.authorization)과 비밀키를 사용하여 토큰을 req.decoded에 반환
         req.decoded = jwt.verify(req.headers.access_token, key);//.split('Bearer ')[1], key);
