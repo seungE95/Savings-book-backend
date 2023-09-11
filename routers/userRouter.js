@@ -8,6 +8,6 @@ userRouter.get("/", home);
 userRouter.post("/login", login);
 userRouter.post("/signup", signup);
 userRouter.patch("/nickname", auth, nickname);
-userRouter.get("/userdata", auth, userdata);
+userRouter.post("/userdata", auth, userdata);
 
 export default userRouter;
