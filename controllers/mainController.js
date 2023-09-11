@@ -61,13 +61,13 @@ export const postGoal = async (req,res) => {
         
         amount.amount_nm + 1;
 
-        res.status(200).json({
+        return res.status(200).json({
             result: "Y",
             code: 200,
             message: "목표 금액 생성 성공"
         })
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             result: "N",
             code: 400,
             message: "목표 금액 생성 실패",
@@ -85,13 +85,13 @@ export const putGoal = async (req,res) => {
         const user = await User.findOne({username: username});
         await Amount.findOneAndUpdate({regDate: date,username: user._id},{goal_money: goal_money});
 
-        res.status(200).json({
+        return res.status(200).json({
             result: "Y",
             code: 200,
             message: "목표 금액 수정 성공"
         })
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             result: "N",
             code: 400,
             message: "목표 금액 수정 실패",
@@ -104,12 +104,101 @@ export const category = (req,res) => {
     res.send("category");
 }
 
-export const dailylist = (req,res) => {
-    res.send("dailylist");
+export const dailylist = async (req,res) => {
+    const { username } = req.decoded;
+    const { year, month } = req.body;
+    const date = year + "-" + month;
+    
+    let intMonth = parseInt(month);
+    let intYear = parseInt(year);
+    //지난달 구하기
+    if(intMonth-1 > 0){
+        intYear = year;
+        intMonth = "0" + String(intMonth-1);
+    } else{
+        intYear = parseInt(year);
+        intMonth = "12";
+    }
+
+    try {
+        const user = await User.findOne({ username:username });
+        const thisMonth = await Amount.find()
+        .where('username').equals(user._id)
+        .where('regDate').equals({$regex:date})
+        .where('type').equals('out')
+        .select('money');
+
+        //if()
+
+        const lastMonth = await Amount.find()
+        .where('username').equals(user._id)
+        .where('regDate').equals({$regex:lastDate})
+        .where('type').equals('out')
+        .select('money');
+
+        if(lastMonth == null) throw error;
+
+        const arr = [];
+        const count = Object.keys(thisMonth);
+
+        for(let i=0; i < count.length; i++){
+            arr.push(thisMonth[i].money);
+        }
+
+        console.log("\narr::: "+arr);
+        return res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data: [{
+                date: {
+                    year: intYear,
+                    month: intMonth
+                },
+                money: arr
+            },{
+                lastDatedate: {
+                    year: year,
+                    month: month
+                },
+                money: arr
+            }]
+        });
+    } catch (error) {
+        return res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "fail"
+        });
+    }
 }
 
-export const calendar = (req,res) => {
-    res.send("calendar");
+export const calendar = async (req,res) => {
+    const { username } = req.decoded;
+    const { year, month, day } = req.body;
+    const date = year + "-" + month + "-" + day;
+    //const date = year + "-" + month;
+
+    try {
+        const user = await User.findOne({ username:username });
+
+        const daily = await Amount.find()
+        .where('username').equals(user._id)
+        .where('regDate').equals(date)
+        .select('type').select('money');
+
+        return res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data:{
+                day: day,
+                daily
+            }
+        })
+    } catch (error) {
+        
+    }
 }
 
 export const getDetails = async (req, res) => {
@@ -124,14 +213,14 @@ export const getDetails = async (req, res) => {
         .where('username').equals(user._id)
         .select('content').select('category').select('type').select('money');
 
-        res.status(200).json({
+        return res.status(200).json({
             result: "Y",
             code: 200,
             message: "Success",
             data: amount
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             result: "N",
             code: 400,
             message: "fail",
@@ -150,13 +239,13 @@ export const postDetails = async (req, res) => {
         const user_name = await User.findOne({ username: username });
         await Amount.create({ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
 
-        res.status(200).json({
+        return res.status(200).json({
             result: "Y",
             code: 200,
             message: "특정 일 수입/지출 저장 완료"
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             result: "N",
             code: 400,
             message: "특정 일 수입/지출 저장 실패",
@@ -167,20 +256,20 @@ export const postDetails = async (req, res) => {
 
 export const putDetails = async (req,res) => {
     const { username } = req.decoded;
-    const { year, month, day, _id, type, money, content, category } = req.body;
+    const { year, month, day, amount_nm, type, money, content, category } = req.body;
     const date = year + "-" + month + "-" + day;
 
     try {
         const user_name = await User.findOne({ username: username });
-        await Amount.findOneAndUpdate({username:user_name._id, _id:_id},{ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
+        await Amount.findOneAndUpdate({username:user_name._id, _id:amount_nm},{ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
 
-        res.status(200).json({
+        return res.status(200).json({
             result: "Y",
             code: 200,
             message: "Success"
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             result: "N",
             code: 400,
             message: "fail",
@@ -189,17 +278,42 @@ export const putDetails = async (req,res) => {
     }
 }
 
-export const deleteDetails = (req,res) => {
+export const deleteDetails = async (req,res) => {
     const { username } = req.decoded;
-    const { _id } = req.body;
+    const { amount_nm } = req.body;
 
     try {
-        
+        const user = await User.findOne({username:username});
+        console.log("\nuser._id::: "+user._id);
+        const amount = await Amount.findOneAndDelete({username:user._id},{_id:amount_nm});
+
+        if(amount == null){
+            return res.status(400).json({
+                result: "N",
+                code: 400,
+                message: "일치하는 정보가 데이터가 없습니다"
+            })
+        }
+
+        return res.status(200).json({
+            result: "Y",
+            code: 200,
+            message: "Success"
+        })
     } catch (error) {
-        
+        return res.status(400).json({
+            result: "N",
+            code: 400,
+            message: "fail",
+            error: error
+        })
     }
 }
 
-export const badge = (req,res) => {
-    res.send("badge");
-}
+
+/*
+    ======보류=======
+*/
+// export const badge = (req,res) => {
+//     res.send("badge");
+// }

@@ -11,7 +11,7 @@ import {
     postDetails,
     putDetails,
     deleteDetails,
-    badge
+    //badge
 } from "../controllers/mainController.js";
 import { auth } from "../authMiddleware.js";    //token 유효성 검증
 
@@ -19,10 +19,10 @@ const mainRouter = express.Router();
 
 mainRouter.get("/monthtotal", auth, monthTotal);
 mainRouter.route("/goal").get(auth, getGoal).post(auth, postGoal).put(auth, putGoal);
-mainRouter.get("/category", category);
-mainRouter.get("/dailylist", dailylist);
-mainRouter.get("/calendar", calendar);
+mainRouter.get("/category", auth, category);
+mainRouter.get("/dailylist", auth, dailylist);
+mainRouter.get("/calendar", auth, calendar);
 mainRouter.route("/details").get(auth, getDetails).post(auth, postDetails).put(auth, putDetails).delete(auth, deleteDetails);
-mainRouter.get("badge", badge);
+//mainRouter.get("badge", badge);
 
 export default mainRouter;

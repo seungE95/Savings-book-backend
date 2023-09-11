@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 //const seq = sequence(mongoose);
 
 const amountSchema = new mongoose.Schema({
-    amount_nm: {type: Number},
+    amount_nm: { type: String },
     content: { type: String },
     money: { type: Number },
     type: {
