@@ -11,7 +11,7 @@ export const auth = (req, res, next) => {
         console.log("\naccess_token::: "+ req.headers.access_token);
         //console.log("\nauthorization::: "+ req.headers.authorization.split('Bearer ')[1]);
         //요청 헤더에 저장된 토큰(req.headers.authorization)과 비밀키를 사용하여 토큰을 req.decoded에 반환
-        req.decoded = jwt.verify(req.headers.access_token, key);//.split('Bearer ')[1], key);
+        req.decoded = jwt.verify(req.headers.authorization, key);//.split('Bearer ')[1], key);
         return next();
     } catch (error) {
         //인증 실패
