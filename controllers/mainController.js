@@ -3,9 +3,9 @@ import User from "../models/user.js"
 
 export const monthTotal = async(req,res) => {
     const {username} = req.decoded;
-    const {year, month} = req.body;
+    const {year, month} = req.query;
     const date = year + "-" + month;
-
+    console.log("\nyear::: "+ year+"\nmonth::: "+month);
     if(year == null || month == null){
         return res.json({
             result: "N",
@@ -20,8 +20,6 @@ export const monthTotal = async(req,res) => {
         .where('username').equals(user._id)
         .select('money')
         .select('type');
-
-
 
         const count = Object.keys(amount);
         let out = 0;
@@ -61,7 +59,7 @@ export const monthTotal = async(req,res) => {
 
 export const getGoal = async (req, res) => {
     const { username } = req.decoded;
-    const { year, month } = req.body;
+    const { year, month } = req.query;
     const date = year + "-" + month;
 
     try {
@@ -146,7 +144,7 @@ export const putGoal = async (req,res) => {
 
 export const category = async (req,res) => {
     const { username } = req.decoded;
-    const { year, month } = req.body;
+    const { year, month } = req.query;
     const date = year + "-" + month;
 
     try {
@@ -222,11 +220,12 @@ export const category = async (req,res) => {
 
 export const dailylist = async (req,res) => {
     const { username } = req.decoded;
-    const { year, month } = req.body;
+    const { year, month } = req.query;
     const date = year + "-" + month;
     
-    let sysMonth = new Date().getMonth();
+    let sysMonth = new Date(year, ).getMonth();
     console.log("\nsysMonth:: "+ sysMonth);
+
     let intMonth = parseInt(month);
     let intYear = parseInt(year);
     //지난달 구하기
@@ -331,27 +330,15 @@ export const dailylist = async (req,res) => {
 
 export const calendar = async (req,res) => {
     const { username } = req.decoded;
-    const { year, month, day } = req.body;
+    const { year, month, day } = req.query;
     const date = year + "-" + month + "-" + day;
-    //const date = year + "-" + month;
 
     try {
         const user = await User.findOne({ username:username });
-
         const daily = await Amount.find()
         .where('username').equals(user._id)
         .where('regDate').equals(date)
         .select('type').select('money');
-
-        // const count = Object.keys(daily);
-        // let totalOut;
-        // let totalIn;
-        // for(let i=0; i < count.length; i++){
-        //     if('out' == daily[i].type)
-        //         totalOut += (daily[i].money);
-        //     else
-        //         totalIn += (daily[i].money);
-        // }
 
         return res.json({
             result: "Y",
@@ -369,7 +356,7 @@ export const calendar = async (req,res) => {
 
 export const getDetails = async (req, res) => {
     const { username } = req.decoded;
-    const { year, month, day } = req.body;
+    const { year, month, day } = req.query;
     const date = year + "-" + month + "-" + day;
 
     try {
