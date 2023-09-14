@@ -28,10 +28,8 @@ export const monthTotal = async(req,res) => {
         for(let i=0; i<count.length; i++){
             if('out' == amount[i].type){
                 out += amount[i].money;
-                console.log("\nout::"+ out);
             } else if('in' == amount[i].type){
                 income += amount[i].money;
-                console.log("\nincome::"+ income);
             }
         }
 
@@ -225,7 +223,7 @@ export const dailylist = async (req,res) => {
     const { year, month } = req.query;
     const date = year + "-" + month;
     
-    let sysMonth = new Date(year, ).getMonth();
+    let sysMonth = new Date().getDay();
     console.log("\nsysMonth:: "+ sysMonth);
 
     let intMonth = parseInt(month);
@@ -332,24 +330,37 @@ export const dailylist = async (req,res) => {
 
 export const calendar = async (req,res) => {
     const { username } = req.decoded;
-    const { year, month, day } = req.query;
-    const date = year + "-" + month + "-" + day;
+    const { year, month } = req.query;
+    const date = year + "-" + month;
 
     try {
         const user = await User.findOne({ username:username });
         const daily = await Amount.find()
         .where('username').equals(user._id)
-        .where('regDate').equals(date)
-        .select('type').select('money');
+        .where('regDate').equals({$regex:date})
+        .select('type')
+        .select('money')
+        .select('regDate')
+        .sort('regDate');
 
-        return res.json({
+        const arr = [];
+        let ob = {};
+        const count = Object.keys(daily);
+        for(let i =0; i<count.length; i++){
+            ob={
+                date: daily[i].regDate,
+                type: daily[i].type,
+                money: daily[i].money
+            }
+            arr.push(ob);
+        }
+
+        console.log("\narr::: "+ arr);
+                return res.json({
             result: "Y",
             code: 200,
             message: "Success",
-            data:{
-                day: day,
-                daily
-            }
+            data: arr
         })
     } catch (error) {
         
