@@ -219,6 +219,8 @@ export const dailylist = async (req,res) => {
     const { year, month } = req.body;
     const date = year + "-" + month;
     
+    let sysMonth = new Date().getMonth();
+    console.log("\nsysMonth:: "+ sysMonth);
     let intMonth = parseInt(month);
     let intYear = parseInt(year);
     //지난달 구하기

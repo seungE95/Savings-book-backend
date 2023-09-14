@@ -137,41 +137,19 @@ export const nickname = async (req, res) => {
     
 }
 
-export const userdata = (req,res) => {
+export const userdata = async (req,res) => {
     const {username, nick_name} = req.decoded;
     console.log("\nusername:: "+username+"\nnick_name:: "+nick_name);
 
-    // return res.status(200).json({
-    //     result: "Y",
-    //     code: 200,
-    //     message: "Success",
-    //     data: {
-    //         username: username,
-    //         nick_name: nick_name
-    //     }
-    // });
+    const user = await User.findOne({username:username})
 
-    // return res.json({
-    //     result: "Y",
-    //     code: 200,
-    //     message: "Success",
-    //     data: {
-    //         username: username,
-    //         nick_name: nick_name
-    //     }
-    // })
-
-    return res.send({
+    return res.json({
         result: "Y",
         code: 200,
         message: "Success",
         data: {
             username: username,
-            nick_name: nick_name
+            nick_name: user.nick_name
         }
     })
-}
-
-export const home = (req,res) => {
-    return res.send("배포 완료");
 }
