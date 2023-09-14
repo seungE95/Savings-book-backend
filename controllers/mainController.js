@@ -5,7 +5,7 @@ export const monthTotal = async(req,res) => {
     const {username} = req.decoded;
     const {year, month} = req.query;
     const date = year + "-" + month;
-    console.log("\nyear::: "+ year+"\nmonth::: "+month);
+    
     if(year == null || month == null){
         return res.json({
             result: "N",
@@ -28,7 +28,8 @@ export const monthTotal = async(req,res) => {
         for(let i=0; i<count.length; i++){
             if('out' == amount[i].type){
                 out += amount[i].money;
-            } else {
+                console.log("\nout::"+ out);
+            } else if('in' == amount[i].type){
                 income += amount[i].money;
                 console.log("\nincome::"+ income);
             }
