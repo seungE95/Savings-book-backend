@@ -28,12 +28,13 @@ export const monthTotal = async(req,res) => {
         for(let i=0; i<count.length; i++){
             if('out' == amount[i].type){
                 out += amount[i].money;
-            } else{
+            } else {
                 income += amount[i].money;
+                console.log("\nincome::"+ income);
             }
         }
 
-        return res.send({
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success",
@@ -200,11 +201,11 @@ export const category = async (req,res) => {
                     month: month
                 },
                 category: {
-                    eat: eat+"%",
-                    cafe: cafe+"%",
-                    pleasure: pleasure+"%",
-                    shopping: shopping+"%",
-                    etc: etc+"%"
+                    eat: eat,
+                    cafe: cafe,
+                    pleasure: pleasure,
+                    shopping: shopping,
+                    etc: etc
                 }
             }
         })

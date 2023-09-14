@@ -37,13 +37,6 @@ export const login = async (req, res) => {
                     issuer: "토큰발급자",
                 }
             );
-            //response
-            // return res.status(200).json({
-            //     result: "Y",
-            //     code: 200,
-            //     message: "token is created",
-            //     access_token: token,
-            // });
             return res.json({
                 result: "Y",
                 code: 200,
@@ -51,12 +44,6 @@ export const login = async (req, res) => {
                 authorization: token,
             });
         } else {
-            // return res.status(401).json({
-            //     result: "N",
-            //     code: 401,
-            //     message: "비밀번호가 일치하지 않습니다."
-            // });
-
             return res.json({
                 result: "N",
                 code: 401,
@@ -75,24 +62,12 @@ export const signup = async (req, res) => {
         const hashed = await bcrypt.hash(password, 10);
         User.create({ username, password: hashed, nick_name });
 
-        // return res.status(200).json({
-        //     result: "Y",
-        //     code: 200,
-        //     message: "회원가입 성공"
-        // })
-
         return res.json({
             result: "Y",
             code: 200,
             message: "회원가입 성공"
         })
     } else {
-        // return res.status(400).json({
-        //     result: "N",
-        //     code: 400,
-        //     message: "이미 아이디가 존재합니다."
-        // });
-
         return res.json({
             result: "N",
             code: 400,
@@ -111,23 +86,12 @@ export const nickname = async (req, res) => {
             {$set: {nick_name: nick_name}}
         )
 
-        // return res.status(200).json({
-        //     result: "Y",
-        //     code: 200,
-        //     message: "닉네임 변경 완료"
-        // });
-
         return res.json({
             result: "Y",
             code: 200,
             message: "닉네임 변경 완료"
         });
     } catch (error){
-        // return res.status(400).json({
-        //     result: "N",
-        //     code: 400,
-        //     message: "닉네임 변경 실패",
-        // });
         return res.json({
             result: "N",
             code: 400,
@@ -141,15 +105,25 @@ export const userdata = async (req,res) => {
     const {username, nick_name} = req.decoded;
     console.log("\nusername:: "+username+"\nnick_name:: "+nick_name);
 
-    const user = await User.findOne({username:username})
+    try {
+        const user = await User.findOne({username:username})
 
-    return res.json({
-        result: "Y",
-        code: 200,
-        message: "Success",
-        data: {
-            username: username,
-            nick_name: user.nick_name
-        }
-    })
+        return res.json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data: {
+                username: username,
+                nick_name: user.nick_name
+            }
+        });
+    } catch (error) {
+        return res.json({
+            result: "N",
+            code: 400,
+            message: "fail",
+            error: error
+        });
+    }
+    
 }
