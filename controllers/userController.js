@@ -15,7 +15,7 @@ export const login = async (req, res) => {
     let token = "";
     
     if (!user) {
-        return res.status(401).json({
+        return res.json({
             result: "N",
             code: 401,
             message: "아이디가 일치하지 않습니다."
@@ -48,7 +48,7 @@ export const login = async (req, res) => {
                 result: "Y",
                 code: 200,
                 message: "token is created",
-                access_token: token,
+                authorization: token,
             });
         } else {
             // return res.status(401).json({

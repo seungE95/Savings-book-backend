@@ -2,18 +2,56 @@ import Amount from "../models/amount.js"
 import User from "../models/user.js"
 
 export const monthTotal = async(req,res) => {
-    // const {username} = req.decoded;
-    // const {year, month} = req.body;
+    const {username} = req.decoded;
+    const {year, month} = req.body;
+    const date = year + "-" + month;
 
-    // const user = await Amount.findOne({username: username, date: year,})
-    // .populate({date,type,money}).exec((err,data) => {
-    //     console.log(data);
-    // });
+    try {
+        const user = await User.findOne({username: username})
+        const amount = await Amount.find()
+        .where('regDate').equals({$regex:date})
+        .where('username').equals(user._id)
+        .select('money')
+        .select('type');
 
-    // user
+        const count = Object.keys(amount);
+        let out = 0;
+        let income = 0;
 
-    res.send("monthTotal");
-}
+        for(let i=0; i<count.length; i++){
+            if('out' == amount[i].type){
+                out += amount[i].money;
+            } else{
+                income += amount[i].money;
+            }
+        }
+
+        return res.json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data: {
+                date: {
+                    year: year,
+                    month: month
+                },
+                list: [{
+                    type: 'in',
+                    money: income
+                },{
+                    type: 'out',
+                    money: out
+                }]
+            }
+        });
+    } catch (error) {
+        return res.json({
+            result: "N",
+            code: 400,
+            message: "fail"
+        });
+    }
+};
 
 export const getGoal = async (req, res) => {
     const { username } = req.decoded;
@@ -28,7 +66,7 @@ export const getGoal = async (req, res) => {
             const resYear = amount.regDate.substring(0,4);
             const resMonth = amount.regDate.substring(5,7);
 
-            return res.status(200).json({
+            return res.json({
                 result: "Y",
                 code: 200,
                 message: "목표 금액 전송 완료",
@@ -42,7 +80,7 @@ export const getGoal = async (req, res) => {
             });
         }
     } catch (error) { 
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "해당 날짜에 목표 금액이 없음",
@@ -61,13 +99,13 @@ export const postGoal = async (req,res) => {
         
         amount.amount_nm + 1;
 
-        return res.status(200).json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "목표 금액 생성 성공"
         })
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "목표 금액 생성 실패",
@@ -85,13 +123,13 @@ export const putGoal = async (req,res) => {
         const user = await User.findOne({username: username});
         await Amount.findOneAndUpdate({regDate: date,username: user._id},{goal_money: goal_money});
 
-        return res.status(200).json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "목표 금액 수정 성공"
         })
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "목표 금액 수정 실패",
@@ -100,8 +138,80 @@ export const putGoal = async (req,res) => {
     }
 }
 
-export const category = (req,res) => {
-    res.send("category");
+export const category = async (req,res) => {
+    const { username } = req.decoded;
+    const { year, month } = req.body;
+    const date = year + "-" + month;
+
+    try {
+        const user = await User.findOne({ username:username });
+        const category = await Amount.find()
+        .where('username').equals(user._id)
+        .where('regDate').equals({$regex:date})
+        .where('type').equals('out')
+        .select('category');
+
+        let total = 0, eat = 0, cafe = 0, pleasure = 0, shopping = 0, etc = 0;
+
+        for(let i=0; i < Object.keys(category).length; i++){
+            switch(category[i].category){
+                case 'eat': 
+                    eat += 1;
+                    break;
+                case 'cafe': 
+                    cafe += 1;
+                    break;
+                case 'pleasure': 
+                    pleasure += 1;
+                    break;
+                case 'shopping': 
+                    shopping += 1;
+                    break;
+                case 'etc': 
+                    etc += 1;
+                    break;
+            }
+        };
+
+        //백분율 구하기
+        total = eat + cafe + pleasure + shopping + etc;
+        if(eat != 0)
+            eat = (eat/total)*100;
+        if(cafe != 0)
+            cafe = (cafe/total)*100;
+        if(pleasure != 0)
+            pleasure = (pleasure/total)*100;
+        if(shopping != 0)
+            shopping = (shopping/total)*100;
+        if(etc != 0)
+            etc = (etc/total)*100;
+        
+        return res.json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data: {
+                date: {
+                    year: year,
+                    month: month
+                },
+                category: {
+                    eat: eat+"%",
+                    cafe: cafe+"%",
+                    pleasure: pleasure+"%",
+                    shopping: shopping+"%",
+                    etc: etc+"%"
+                }
+            }
+        })
+    } catch {
+        return res.json({
+            result: "N",
+            code: 400,
+            message: "fail"
+        })
+    }
+
 }
 
 export const dailylist = async (req,res) => {
@@ -113,12 +223,13 @@ export const dailylist = async (req,res) => {
     let intYear = parseInt(year);
     //지난달 구하기
     if(intMonth-1 > 0){
-        intYear = year;
-        intMonth = "0" + String(intMonth-1);
+        intMonth = "0" + String(intMonth - 1);
     } else{
-        intYear = parseInt(year);
+        intYear = intYear - 1; 
         intMonth = "12";
     }
+
+    const lastDate = String(intYear) + "-" + String(intMonth);
 
     try {
         const user = await User.findOne({ username:username });
@@ -126,27 +237,63 @@ export const dailylist = async (req,res) => {
         .where('username').equals(user._id)
         .where('regDate').equals({$regex:date})
         .where('type').equals('out')
-        .select('money');
-
-        //if()
+        .select('money')
+        .select('regDate')
+        .sort('regDate');
 
         const lastMonth = await Amount.find()
         .where('username').equals(user._id)
         .where('regDate').equals({$regex:lastDate})
         .where('type').equals('out')
-        .select('money');
+        .select('money')
+        .select('regDate')
+        .sort('regDate');
 
         if(lastMonth == null) throw error;
 
-        const arr = [];
+        const money = [];
+        const day = []; 
         const count = Object.keys(thisMonth);
+        let plus = 0;
 
+        console.log("\n:::여기부터::: ");
         for(let i=0; i < count.length; i++){
-            arr.push(thisMonth[i].money);
+            if(i != count.length){
+                if( thisMonth[i].regDate == thisMonth[i+1].regDate){
+                    plus += thisMonth[i].money;
+                    console.log("\n1")
+                } else if( thisMonth[i].regDate != thisMonth[i+1].regDate){
+                    if(plus != 0){
+                        money.push(plus);
+                        day.push(thisMonth[i].regDate.substring(8,10));
+                        plus = 0;
+                        console.log("\n2")
+                    }else{
+                        money.push(thisMonth[i].money);
+                        day.push(thisMonth[i].regDate.substring(8,10));
+                        console.log("\n3")
+                    }
+                }
+            }else if(thisMonth[i-1].regDate == thisMonth[i].regDate){
+                console.log("\n:::4::: ");
+                plus += thisMonth[i].money;
+                money.push(plus);
+                day.push(thisMonth[i].regDate.substring(8,10));
+            }else{
+                money.push(thisMonth[i].money);
+                day.push(thisMonth[i].regDate.substring(8,10));
+            }
         }
 
-        console.log("\narr::: "+arr);
-        return res.status(200).json({
+        console.log("\n:::여기까지::: ");
+        const lastMoney = [];
+        const lastCount = Object.keys(lastMonth);
+
+        for(let i=0; i < lastCount.length; i++){
+            lastMoney.push(lastMonth[i].money);
+        }
+
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success",
@@ -155,17 +302,18 @@ export const dailylist = async (req,res) => {
                     year: intYear,
                     month: intMonth
                 },
-                money: arr
+                money: lastMoney
             },{
-                lastDatedate: {
+                date: {
                     year: year,
                     month: month
                 },
-                money: arr
+                day: day,
+                money: money
             }]
         });
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "fail"
@@ -187,7 +335,17 @@ export const calendar = async (req,res) => {
         .where('regDate').equals(date)
         .select('type').select('money');
 
-        return res.status(200).json({
+        // const count = Object.keys(daily);
+        // let totalOut;
+        // let totalIn;
+        // for(let i=0; i < count.length; i++){
+        //     if('out' == daily[i].type)
+        //         totalOut += (daily[i].money);
+        //     else
+        //         totalIn += (daily[i].money);
+        // }
+
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success",
@@ -213,14 +371,14 @@ export const getDetails = async (req, res) => {
         .where('username').equals(user._id)
         .select('content').select('category').select('type').select('money');
 
-        return res.status(200).json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success",
             data: amount
         });
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "fail",
@@ -239,13 +397,13 @@ export const postDetails = async (req, res) => {
         const user_name = await User.findOne({ username: username });
         await Amount.create({ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
 
-        return res.status(200).json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "특정 일 수입/지출 저장 완료"
         });
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "특정 일 수입/지출 저장 실패",
@@ -263,13 +421,13 @@ export const putDetails = async (req,res) => {
         const user_name = await User.findOne({ username: username });
         await Amount.findOneAndUpdate({username:user_name._id, _id:amount_nm},{ regDate: date, type: type, money: money, content: content, category: category, username: user_name });
 
-        return res.status(200).json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success"
         });
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "fail",
@@ -288,20 +446,20 @@ export const deleteDetails = async (req,res) => {
         const amount = await Amount.findOneAndDelete({username:user._id},{_id:amount_nm});
 
         if(amount == null){
-            return res.status(400).json({
+            return res.json({
                 result: "N",
                 code: 400,
                 message: "일치하는 정보가 데이터가 없습니다"
             })
         }
 
-        return res.status(200).json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success"
         })
     } catch (error) {
-        return res.status(400).json({
+        return res.json({
             result: "N",
             code: 400,
             message: "fail",
