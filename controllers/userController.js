@@ -161,7 +161,7 @@ export const userdata = (req,res) => {
     //     }
     // })
 
-    return res.json({
+    return res.send({
         result: "Y",
         code: 200,
         message: "Success",
