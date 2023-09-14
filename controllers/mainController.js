@@ -6,6 +6,13 @@ export const monthTotal = async(req,res) => {
     const {year, month} = req.body;
     const date = year + "-" + month;
 
+    if(year == null || month == null){
+        return res.json({
+            result: "N",
+            code: 400,
+            message: "날짜를 입력해주세요"
+        })
+    }
     try {
         const user = await User.findOne({username: username})
         const amount = await Amount.find()
@@ -13,6 +20,8 @@ export const monthTotal = async(req,res) => {
         .where('username').equals(user._id)
         .select('money')
         .select('type');
+
+
 
         const count = Object.keys(amount);
         let out = 0;
@@ -26,7 +35,7 @@ export const monthTotal = async(req,res) => {
             }
         }
 
-        return res.json({
+        return res.send({
             result: "Y",
             code: 200,
             message: "Success",
@@ -35,13 +44,10 @@ export const monthTotal = async(req,res) => {
                     year: year,
                     month: month
                 },
-                list: [{
-                    type: 'in',
-                    money: income
-                },{
-                    type: 'out',
-                    money: out
-                }]
+                list:{
+                    in : income,
+                    out : out
+                }
             }
         });
     } catch (error) {
