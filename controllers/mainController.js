@@ -457,8 +457,8 @@ export const putDetails = async (req,res) => {
 
 export const deleteDetails = async (req,res) => {
     const { username } = req.decoded;
-    const { amount_nm, _id } = req.body;
-    const { amount_nm_query } = req.query;
+    //const { amount_nm, _id } = req.body;
+    const { amount_nm } = req.query;
     try {
         console.log("\namount_nm:: "+amount_nm);
         console.log("\n_id:: "+_id);
