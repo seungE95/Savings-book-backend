@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 //const seq = sequence(mongoose);
 
 const amountSchema = new mongoose.Schema({
-    amount_nm: { type: String },
     content: { type: String },
     money: { type: Number },
     type: {
@@ -23,6 +22,5 @@ const amountSchema = new mongoose.Schema({
 });
 
 const Amount = mongoose.model("Amount", amountSchema);
-//amountSchema.plugin(seq, { inc_field: "amount_nm" });
 
 export default Amount;

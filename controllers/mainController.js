@@ -99,9 +99,8 @@ export const postGoal = async (req,res) => {
     
     try{
         const user_name = await User.findOne({username: username});
-        const amount = await Amount.create({regDate: date, goal_money: goal_money, username: user_name});
+        await Amount.create({regDate: date, goal_money: goal_money, username: user_name});
         
-        amount.amount_nm + 1;
 
         return res.json({
             result: "Y",
@@ -161,6 +160,7 @@ export const category = async (req,res) => {
         let total = 0, eat = 0, cafe = 0, pleasure = 0, shopping = 0, etc = 0;
 
         for(let i=0; i<count.length; i++){
+
             switch(category[i].category){
                 case 'eat':
                     eat += category[i].money;
@@ -182,7 +182,7 @@ export const category = async (req,res) => {
 
         //백분율 구하기
         total = eat + cafe + pleasure + shopping + etc;
-        console.log("\ntotal::: "+ total)
+
         if(eat != 0)
             eat = Math.round((eat/total) * 100).toFixed(1);
         if(cafe != 0)
@@ -194,7 +194,6 @@ export const category = async (req,res) => {
         if(etc != 0)
             etc = Math.round((etc/total) * 100).toFixed(1);
         
-        console.log('\neat :: '+ eat + "\npleasure ::: " + pleasure)
         return res.json({
             result: "Y",
             code: 200,
@@ -352,23 +351,30 @@ export const calendar = async (req,res) => {
         let ob = {};
         const count = Object.keys(daily);
         for(let i =0; i<count.length; i++){
-            ob={
-                date: daily[i].regDate,
-                type: daily[i].type,
-                money: daily[i].money
+            if(daily[i].money != null){
+                ob={
+                    date: daily[i].regDate,
+                    type: daily[i].type,
+                    money: daily[i].money
+                }
             }
             arr.push(ob);
         }
-
+        
         console.log("\narr::: "+ arr);
-                return res.json({
+        return res.json({
             result: "Y",
             code: 200,
             message: "Success",
             data: arr
         })
     } catch (error) {
-        
+        return res.json({
+            result: "N",
+            code: 400,
+            message: "fail",
+            error: error
+        })
     }
 }
 
