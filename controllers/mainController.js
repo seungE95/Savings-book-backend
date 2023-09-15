@@ -347,26 +347,31 @@ export const calendar = async (req,res) => {
         .select('regDate')
         .sort('regDate');
 
-        const arr = [];
-        let ob = {};
-        const count = Object.keys(daily);
-        for(let i =0; i<count.length; i++){
-            if(daily[i].money != null){
-                ob={
-                    date: daily[i].regDate,
-                    type: daily[i].type,
-                    money: daily[i].money
-                }
+        const groupedData = daily.reduce((acc, current) =>{
+            const key = `${current.regDate}-${current.type}`;
+
+            if(!acc[key]){
+                acc[key] = {
+                    date: current.regDate,
+                    type: current.type,
+                    money: 0
+                };
             }
-            arr.push(ob);
-        }
+            acc[key].money += current.money;
+
+            return acc;
+        }, {});
+
+        const result = Object.values(groupedData);
         
+        console.log("\nresult::: "+ result);
+
         console.log("\narr::: "+ arr);
         return res.json({
             result: "Y",
             code: 200,
             message: "Success",
-            data: arr
+            data: result
         })
     } catch (error) {
         return res.json({
