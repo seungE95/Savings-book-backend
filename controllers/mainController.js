@@ -61,7 +61,7 @@ export const getGoal = async (req, res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
     const date = year + "-" + month;
-
+    console.log("ndate::: "+ date)
     try {
         if (year != null && month != null) {
             const user = await User.findOne({username: username});            
@@ -69,7 +69,7 @@ export const getGoal = async (req, res) => {
             
             const resYear = amount.regDate.substring(0,4);
             const resMonth = amount.regDate.substring(5,7);
-
+            
             return res.json({
                 result: "Y",
                 code: 200,
@@ -298,26 +298,26 @@ export const dailylist = async (req,res) => {
 
         
 
-        const groupedData = thisMonth.reduce((acc, current) =>{
-            const key = `${current.regDate.substring(8,10)}-${current.type}`;
-            current.slice(1);
-            if(!acc[key]){
-                acc[key] = {
-                    // date: current.regDate,
-                    // type: current.type,
-                    day: current.regDate.substring(8,10),
-                    money: 0
-                };
-            }
-            acc[key].money += current.money;
+        // const groupedData = thisMonth.reduce((acc, current) =>{
+        //     const key = `${current.regDate.substring(8,10)}-${current.type}`;
+            
+        //     if(!acc[key]){
+        //         acc[key] = {
+        //             // date: current.regDate,
+        //             // type: current.type,
+        //             day: current.regDate.substring(8,10),
+        //             money: 0
+        //         };
+        //     }
+        //     acc[key].money += current.money;
 
-            return acc;
-        }, {});
+        //     return acc;
+        // }, {});
         
 
-        const result = Object.values(groupedData);
+        // const result = Object.values(groupedData);
         
-        console.log("\nresult::: "+ result);
+        // console.log("\nresult::: "+ result);
 
         const lastMoney = [];
         const lastCount = Object.keys(lastMonth);
@@ -340,9 +340,7 @@ export const dailylist = async (req,res) => {
                 date: {
                     year: year,
                     month: month
-                },
-                day: [groupedData.day],
-                money: [groupedData.money]
+                }
             }]
         });
     } catch (error) {
