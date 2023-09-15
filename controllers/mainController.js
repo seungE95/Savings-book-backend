@@ -457,15 +457,11 @@ export const putDetails = async (req,res) => {
 
 export const deleteDetails = async (req,res) => {
     const { username } = req.decoded;
-    //const { amount_nm, _id } = req.body;
     const { amount_nm } = req.query;
     try {
-        console.log("\namount_nm:: "+amount_nm);
-        console.log("\n_id:: "+_id);
-        console.log("\namount_nm_query:: "+amount_nm_query);
-
         const user = await User.findOne({username:username});
-        const amount = await Amount.findOneAndDelete({username:user._id},{_id:amount_nm});
+        const amount = await Amount.deleteOne({_id:amount_nm})
+        .where('username').equals(user._id);
 
         if(amount == null){
             return res.json({
