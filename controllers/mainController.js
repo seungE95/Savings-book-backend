@@ -296,9 +296,11 @@ export const dailylist = async (req,res) => {
         //     }
         // }
 
+        
+
         const groupedData = thisMonth.reduce((acc, current) =>{
             const key = `${current.regDate.substring(8,10)}-${current.type}`;
-
+            
             if(!acc[key]){
                 acc[key] = {
                     // date: current.regDate,
@@ -311,8 +313,9 @@ export const dailylist = async (req,res) => {
 
             return acc;
         }, {});
+        
 
-        const result = Object.values(groupedData);
+        const result = Object.values(groupedData.slice(1));
         
         console.log("\nresult::: "+ result);
 
@@ -368,7 +371,7 @@ export const calendar = async (req,res) => {
         
         const groupedData = daily.reduce((acc, current) =>{
             const key = `${current.regDate}-${current.type}`;
-
+            //if(current.money){
             if(!acc[key]){
                 acc[key] = {
                     date: current.regDate,
