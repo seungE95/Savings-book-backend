@@ -153,43 +153,48 @@ export const category = async (req,res) => {
         .where('username').equals(user._id)
         .where('regDate').equals({$regex:date})
         .where('type').equals('out')
-        .select('category');
+        .select('category')
+        .select('money');
 
+        const count = Object.keys(category)
+        
         let total = 0, eat = 0, cafe = 0, pleasure = 0, shopping = 0, etc = 0;
 
-        for(let i=0; i < Object.keys(category).length; i++){
+        for(let i=0; i<count.length; i++){
             switch(category[i].category){
-                case 'eat': 
-                    eat += 1;
+                case 'eat':
+                    eat += category[i].money;
                     break;
-                case 'cafe': 
-                    cafe += 1;
+                case 'cafe':
+                    cafe += category[i].money;
                     break;
-                case 'pleasure': 
-                    pleasure += 1;
+                case 'pleasure':
+                    pleasure += category[i].money;
                     break;
-                case 'shopping': 
-                    shopping += 1;
+                case 'shopping':
+                    shopping += category[i].money;
                     break;
-                case 'etc': 
-                    etc += 1;
+                case 'etc':
+                    etc += category[i].money;
                     break;
             }
-        };
+        }
 
         //백분율 구하기
         total = eat + cafe + pleasure + shopping + etc;
+        console.log("\ntotal::: "+ total)
         if(eat != 0)
-            eat = (eat/total)*100;
+            eat = Math.round((eat/total) * 100).toFixed(1);
         if(cafe != 0)
-            cafe = (cafe/total)*100;
+            cafe = Math.round((cafe/total) * 100).toFixed(1);
         if(pleasure != 0)
-            pleasure = (pleasure/total)*100;
+            pleasure = Math.round((pleasure/total) * 100).toFixed(1);
         if(shopping != 0)
-            shopping = (shopping/total)*100;
+            shopping = Math.round((shopping/total) * 100).toFixed(1);
         if(etc != 0)
-            etc = (etc/total)*100;
+            etc = Math.round((etc/total) * 100).toFixed(1);
         
+        console.log('\neat :: '+ eat + "\npleasure ::: " + pleasure)
         return res.json({
             result: "Y",
             code: 200,
@@ -222,9 +227,9 @@ export const dailylist = async (req,res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
     const date = year + "-" + month;
-    
-    let sysMonth = new Date().getDay();
-    console.log("\nsysMonth:: "+ sysMonth);
+
+    let sysMonth = new Date(year,month,0);
+    console.log("\nsysMonth:: "+ sysMonth.slice(1,2));
 
     let intMonth = parseInt(month);
     let intYear = parseInt(year);
