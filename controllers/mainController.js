@@ -227,8 +227,8 @@ export const dailylist = async (req,res) => {
     const { year, month } = req.query;
     const date = year + "-" + month;
 
-    let sysMonth = new Date(year,month,0);
-    console.log("\nsysMonth:: "+ sysMonth.slice(1,2));
+    //let sysMonth = new Date(year,month,0);
+    //console.log("\nsysMonth:: "+ sysMonth.slice(1,2));
 
     let intMonth = parseInt(month);
     let intYear = parseInt(year);
@@ -262,41 +262,60 @@ export const dailylist = async (req,res) => {
 
         if(lastMonth == null) throw error;
 
-        const money = [];
-        const day = []; 
-        const count = Object.keys(thisMonth);
-        let plus = 0;
+        // const money = [];
+        // const day = []; 
+        // const count = Object.keys(thisMonth);
+        // let plus = 0;
 
-        console.log("\n:::여기부터::: ");
-        for(let i=0; i < count.length; i++){
-            if(i != count.length){
-                if( thisMonth[i].regDate == thisMonth[i+1].regDate){
-                    plus += thisMonth[i].money;
-                    console.log("\n1")
-                } else if( thisMonth[i].regDate != thisMonth[i+1].regDate){
-                    if(plus != 0){
-                        money.push(plus);
-                        day.push(thisMonth[i].regDate.substring(8,10));
-                        plus = 0;
-                        console.log("\n2")
-                    }else{
-                        money.push(thisMonth[i].money);
-                        day.push(thisMonth[i].regDate.substring(8,10));
-                        console.log("\n3")
-                    }
-                }
-            }else if(thisMonth[i-1].regDate == thisMonth[i].regDate){
-                console.log("\n:::4::: ");
-                plus += thisMonth[i].money;
-                money.push(plus);
-                day.push(thisMonth[i].regDate.substring(8,10));
-            }else{
-                money.push(thisMonth[i].money);
-                day.push(thisMonth[i].regDate.substring(8,10));
+        // console.log("\n:::여기부터::: ");
+        // for(let i=0; i < count.length; i++){
+        //     if(i != count.length){
+        //         if( thisMonth[i].regDate == thisMonth[i+1].regDate){
+        //             plus += thisMonth[i].money;
+        //             console.log("\n1")
+        //         } else if( thisMonth[i].regDate != thisMonth[i+1].regDate){
+        //             if(plus != 0){
+        //                 money.push(plus);
+        //                 day.push(thisMonth[i].regDate.substring(8,10));
+        //                 plus = 0;
+        //                 console.log("\n2")
+        //             }else{
+        //                 money.push(thisMonth[i].money);
+        //                 day.push(thisMonth[i].regDate.substring(8,10));
+        //                 console.log("\n3")
+        //             }
+        //         }
+        //     }else if(thisMonth[i-1].regDate == thisMonth[i].regDate){
+        //         console.log("\n:::4::: ");
+        //         plus += thisMonth[i].money;
+        //         money.push(plus);
+        //         day.push(thisMonth[i].regDate.substring(8,10));
+        //     }else{
+        //         money.push(thisMonth[i].money);
+        //         day.push(thisMonth[i].regDate.substring(8,10));
+        //     }
+        // }
+
+        const groupedData = thisMonth.reduce((acc, current) =>{
+            const key = `${current.regDate.substring(8,10)}-${current.type}`;
+
+            if(!acc[key]){
+                acc[key] = {
+                    // date: current.regDate,
+                    // type: current.type,
+                    day: current.regDate.substring(8,10),
+                    money: 0
+                };
             }
-        }
+            acc[key].money += current.money;
 
-        console.log("\n:::여기까지::: ");
+            return acc;
+        }, {});
+
+        const result = Object.values(groupedData);
+        
+        console.log("\nresult::: "+ result);
+
         const lastMoney = [];
         const lastCount = Object.keys(lastMonth);
 
@@ -319,8 +338,8 @@ export const dailylist = async (req,res) => {
                     year: year,
                     month: month
                 },
-                day: day,
-                money: money
+                day: [groupedData.day],
+                money: [groupedData.money]
             }]
         });
     } catch (error) {
@@ -346,7 +365,7 @@ export const calendar = async (req,res) => {
         .select('money')
         .select('regDate')
         .sort('regDate');
-
+        
         const groupedData = daily.reduce((acc, current) =>{
             const key = `${current.regDate}-${current.type}`;
 
@@ -363,10 +382,7 @@ export const calendar = async (req,res) => {
         }, {});
 
         const result = Object.values(groupedData);
-        
-        console.log("\nresult::: "+ result);
 
-        console.log("\narr::: "+ arr);
         return res.json({
             result: "Y",
             code: 200,
