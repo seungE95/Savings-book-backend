@@ -252,11 +252,11 @@ export const dailylist = async (req,res) => {
             },
             {
                 $group: {
-                _id: '$regDate',
-                date: { $first: '$regDate' },
-                money:{
-                    $sum: '$money'
-                }
+                    _id: '$regDate',
+                    date: { $first: '$regDate' },
+                    money:{
+                        $sum: '$money'
+                    }
                 }
             },
             {
@@ -265,7 +265,7 @@ export const dailylist = async (req,res) => {
             {
                 $project: { _id: 0 }
             }
-            ]);
+        ]);
 
         let thisDate = new Date(year, month, 0).getDate();
         
@@ -313,11 +313,11 @@ export const dailylist = async (req,res) => {
             },
             {
                 $group: {
-                _id: '$regDate',
-                date: { $first: '$regDate' },
-                money:{
-                    $sum: '$money'
-                }
+                    _id: '$regDate',
+                    date: { $first: '$regDate' },
+                    money:{
+                        $sum: '$money'
+                    }
                 }
             },
             {
@@ -326,7 +326,7 @@ export const dailylist = async (req,res) => {
             {
                 $project: { _id: 0 }
             }
-            ]);
+        ]);
 
         //지난달 마지막day 얻기
         let lastDay = new Date(year, month-1, 0).getDate();
@@ -348,9 +348,6 @@ export const dailylist = async (req,res) => {
             }
             j ++;
         }
-
-        console.log("\nlastArr:: "+lastArr);
-        console.log("\nthisArr:: "+thisArr);
 
         return res.json({
             result: "Y",
@@ -386,34 +383,35 @@ export const calendar = async (req,res) => {
 
         const daily = await Amount
         .aggregate([
-        {
-            $match: {
-                username: user._id,
-                regDate: {
-                    $regex:date
-                },
-                money: {
-                    $ne: null
+            {
+                $match: {
+                    username: user._id,
+                    regDate: {
+                        $regex:date
+                    },
+                    type: {
+                        $ne: null
+                    }
                 }
+            },
+            {
+                $group: {
+                    _id: ['$regDate', '$type'],
+                    date: { $first: '$regDate' },
+                    type: { $first: '$type' },
+                    money:{
+                        $sum: '$money'
+                    }
+                }
+            },
+            {
+                $sort: { date : 1 }
+            },
+            {
+                $project: { _id: 0 }
             }
-        },
-        {
-            $group: {
-            _id: ['$regDate', '$type'],
-            date: { $first: '$regDate' },
-            type: { $first: '$type' },
-            money:{
-                $sum: '$money'
-            }
-            }
-        },
-        {
-            $sort: { regDate : 1 }
-        },
-        {
-            $project: { _id: 0 }
-        }
         ]);
+
 
         let count = Object.keys(daily);
         for(let i=0; i< count.length; i++){
