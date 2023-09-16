@@ -9,7 +9,7 @@ const amountSchema = new mongoose.Schema({
         type: String,
         enum : ['in', 'out']
     },
-    goal_money: { type:String },
+    //goal_money: { type:String },
     category: { 
         type: String,
         enum: ['eat','cafe','pleasure','shopping','etc']

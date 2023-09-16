@@ -7,4 +7,8 @@ const goalSchema = new mongoose.Schema({
         default: Date.now
     },
     username: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-})
+});
+
+const Goal = mongoose.model("Goal", goalSchema);
+
+export default Goal;

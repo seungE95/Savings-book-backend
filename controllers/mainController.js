@@ -1,5 +1,6 @@
 import Amount from "../models/amount.js"
 import User from "../models/user.js"
+import Goal from "../models/goal.js"
 
 export const monthTotal = async(req,res) => {
     const {username} = req.decoded;
@@ -61,14 +62,14 @@ export const getGoal = async (req, res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
     const date = year + "-" + month;
-    console.log("ndate::: "+ date)
+    
     try {
         if (year != null && month != null) {
             const user = await User.findOne({username: username});            
-            const amount = await Amount.findOne({username: user._id, regDate:date});
+            const goal = await Goal.findOne({username: user._id, regDate:date});
             
-            const resYear = amount.regDate.substring(0,4);
-            const resMonth = amount.regDate.substring(5,7);
+            const resYear = goal.regDate.substring(0,4);
+            const resMonth = goal.regDate.substring(5,7);
             
             return res.json({
                 result: "Y",
@@ -79,7 +80,7 @@ export const getGoal = async (req, res) => {
                         year: resYear,
                         month: resMonth
                     },
-                    goal_money: amount.goal_money
+                    goal_money: goal.goal_money
                 }
             });
         }
@@ -99,7 +100,7 @@ export const postGoal = async (req,res) => {
     
     try{
         const user_name = await User.findOne({username: username});
-        await Amount.create({regDate: date, goal_money: goal_money, username: user_name});
+        await Goal.create({regDate: date, goal_money: goal_money, username: user_name});
         
 
         return res.json({
@@ -124,7 +125,7 @@ export const putGoal = async (req,res) => {
     
     try{
         const user = await User.findOne({username: username});
-        await Amount.findOneAndUpdate({regDate: date,username: user._id},{goal_money: goal_money});
+        await Goal.findOneAndUpdate({regDate: date,username: user._id},{goal_money: goal_money});
 
         return res.json({
             result: "Y",
@@ -381,48 +382,73 @@ export const calendar = async (req,res) => {
     try {
         const user = await User.findOne({ username:username });
 
-        const daily = await Amount
-        .aggregate([
-            {
-                $match: {
-                    username: user._id,
-                    regDate: {
-                        $regex:date
-                    },
-                    type: {
-                        $ne: null
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: ['$regDate', '$type'],
-                    date: { $last: '$regDate' },
-                    type: { $last: '$type' },
-                    money:{
-                        $sum: '$money'
-                    }
-                }
-            },
-            {
-                $sort: { date : 1 }
-            },
-            {
-                $project: { _id: 0 }
-            }
-        ]);
+        const daily = await Amount.find()
+        .select('money regDate type')
+        .where('username').equals(user._id)
+        .where('regDate').equals({$regex:date})
+        .sort('regDate');
 
 
-        let count = Object.keys(daily);
-        for(let i=0; i< count.length; i++){
-            console.log("\ndaily:: " + JSON.stringify(daily[i]))
+
+        // .aggregate([
+        //     {
+        //         $match: {
+        //             username: user._id,
+        //             regDate: {
+        //                 $regex:date
+        //             },
+        //             type: {
+        //                 $ne: null
+        //             }
+        //         }
+        //     },
+        //     {
+        //         $group: {
+        //             _id: ['$regDate', '$type'],
+        //             date: { $last: '$regDate' },
+        //             type: { $last: '$type' },
+        //             money:{
+        //                 $sum: '$money'
+        //             }
+        //         }
+        //     },
+        //     {
+        //         $sort: { date : 1 }
+        //     },
+        //     {
+        //         $project: { _id: 0 }
+        //     }
+        // ]);
+
+        // 빈 객체를 생성하여 거래를 그룹화하고 합산합니다.
+
+        console.log("\ndaily:: "+JSON.stringify(daily))
+
+        const groupedTransactions = {};
+
+        for (const transaction of daily) {
+            const key = `${transaction.regDate}-${transaction.type}`;
+        if (groupedTransactions[key]) {
+            // 이미 같은 날짜와 타입의 거래가 있는 경우, 금액을 합산합니다.
+            groupedTransactions[key].money += parseInt(transaction.money, 10);
+        } else {
+            // 새로운 거래를 추가합니다.
+            groupedTransactions[key] = {
+            date: transaction.regDate,
+            type: transaction.type,
+            money: parseInt(transaction.money, 10),
+            };
         }
+        }
+
+        // 결과를 객체 배열로 변환합니다.
+        const result = Object.values(groupedTransactions);
 
         return res.json({
             result: "Y",
             code: 200,
             message: "Success",
-            data: daily
+            data: result
         })
     } catch (error) {
         return res.json({
