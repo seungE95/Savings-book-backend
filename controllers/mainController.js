@@ -404,9 +404,9 @@ export const calendar = async (req,res) => {
                     }
                 }
             },
-            {
-                $sort: { date : 1 }
-            },
+            // {
+            //     $sort: { date : 1 }
+            // },
             {
                 $project: { _id: 0 }
             }
