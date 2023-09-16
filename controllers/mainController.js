@@ -397,8 +397,8 @@ export const calendar = async (req,res) => {
             {
                 $group: {
                     _id: ['$regDate', '$type'],
-                    date: { $push: '$regDate' },
-                    type: { $push: '$type' },
+                    date: { $last: '$regDate' },
+                    type: { $last: '$type' },
                     money:{
                         $sum: '$money'
                     }
