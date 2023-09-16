@@ -397,16 +397,16 @@ export const calendar = async (req,res) => {
             {
                 $group: {
                     _id: ['$regDate', '$type'],
-                    date: { $first: '$regDate' },
-                    type: { $first: '$type' },
+                    date: { $max: '$regDate' },
+                    type: { $max: '$type' },
                     money:{
                         $sum: '$money'
                     }
                 }
             },
-            // {
-            //     $sort: { date : 1 }
-            // },
+            {
+                $sort: { date : 1 }
+            },
             {
                 $project: { _id: 0 }
             }
