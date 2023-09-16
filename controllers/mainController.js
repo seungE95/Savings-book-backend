@@ -359,36 +359,43 @@ export const calendar = async (req,res) => {
 
     try {
         const user = await User.findOne({ username:username });
-        const daily = await Amount.find()
-        .where('username').equals(user._id)
-        .where('regDate').equals({$regex:date})
-        .select('type')
-        .select('money')
-        .select('regDate')
-        .sort('regDate');
-        
-        const groupedData = daily.reduce((acc, current) =>{
-            const key = `${current.regDate}-${current.type}`;
-            //if(current.money){
-            if(!acc[key]){
-                acc[key] = {
-                    date: current.regDate,
-                    type: current.type,
-                    money: 0
-                };
+
+        const daily = await Amount
+        .aggregate([
+        {
+            $match: {
+                username: user._id,
+                regDate: {
+                    $regex:date
+                },
+                money: {
+                    $ne: null
+                }
             }
-            acc[key].money += current.money;
-
-            return acc;
-        }, {});
-
-        const result = Object.values(groupedData);
+        },
+        {
+            $group: {
+            _id: ['$regDate', '$type'],
+            date: { $first: '$regDate' },
+            type: { $first: '$type' },
+            money:{
+                $sum: '$money'
+            }
+            }
+        },
+        {
+            $sort: { date: 1 }
+        },
+        {
+            $project: { _id: 0 }
+        }
+        ]);
 
         return res.json({
             result: "Y",
             code: 200,
             message: "Success",
-            data: result
+            data: daily
         })
     } catch (error) {
         return res.json({
