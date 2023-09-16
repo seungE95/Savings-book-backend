@@ -227,9 +227,6 @@ export const dailylist = async (req,res) => {
     const { year, month } = req.query;
     const date = year + "-" + month;
 
-    //let sysMonth = new Date(year,month,0);
-    //console.log("\nsysMonth:: "+ sysMonth.slice(1,2));
-
     let intMonth = parseInt(month);
     let intYear = parseInt(year);
     //지난달 구하기
@@ -240,108 +237,135 @@ export const dailylist = async (req,res) => {
         intMonth = "12";
     }
 
-    const lastDate = String(intYear) + "-" + String(intMonth);
-
     try {
         const user = await User.findOne({ username:username });
-        const thisMonth = await Amount.find()
-        .where('username').equals(user._id)
-        .where('regDate').equals({$regex:date})
-        .where('type').equals('out')
-        .select('money')
-        .select('regDate')
-        .sort('regDate');
+        const thisMonth = await Amount//.find()
+        .aggregate([
+            {
+                $match: {
+                    username: user._id,
+                    regDate: {
+                        $regex:date
+                    },
+                    type: 'out'
+                }
+            },
+            {
+                $group: {
+                _id: '$regDate',
+                date: { $first: '$regDate' },
+                money:{
+                    $sum: '$money'
+                }
+                }
+            },
+            {
+                $sort: { date: 1 }
+            },
+            {
+                $project: { _id: 0 }
+            }
+            ]);
 
-        const lastMonth = await Amount.find()
-        .where('username').equals(user._id)
-        .where('regDate').equals({$regex:lastDate})
-        .where('type').equals('out')
-        .select('money')
-        .select('regDate')
-        .sort('regDate');
-
-        if(lastMonth == null) throw error;
-
-        // const money = [];
-        // const day = []; 
-        // const count = Object.keys(thisMonth);
-        // let plus = 0;
-
-        // console.log("\n:::여기부터::: ");
-        // for(let i=0; i < count.length; i++){
-        //     if(i != count.length){
-        //         if( thisMonth[i].regDate == thisMonth[i+1].regDate){
-        //             plus += thisMonth[i].money;
-        //             console.log("\n1")
-        //         } else if( thisMonth[i].regDate != thisMonth[i+1].regDate){
-        //             if(plus != 0){
-        //                 money.push(plus);
-        //                 day.push(thisMonth[i].regDate.substring(8,10));
-        //                 plus = 0;
-        //                 console.log("\n2")
-        //             }else{
-        //                 money.push(thisMonth[i].money);
-        //                 day.push(thisMonth[i].regDate.substring(8,10));
-        //                 console.log("\n3")
-        //             }
-        //         }
-        //     }else if(thisMonth[i-1].regDate == thisMonth[i].regDate){
-        //         console.log("\n:::4::: ");
-        //         plus += thisMonth[i].money;
-        //         money.push(plus);
-        //         day.push(thisMonth[i].regDate.substring(8,10));
-        //     }else{
-        //         money.push(thisMonth[i].money);
-        //         day.push(thisMonth[i].regDate.substring(8,10));
+        let thisDate = new Date(year, month, 0).getDate();
+        
+        let thisArr =[];
+        // for(let i=0; i<thisDate; i++){
+        //     try {
+        //         if(i+1 == parseInt(thisMonth[i].date.substring(8,10))){
+        //             thisArr.push(thisMonth[i].money);
+        //         } 
+        //     } catch {
+        //         thisArr.push(0);
         //     }
         // }
 
-        
-
-        // const groupedData = thisMonth.reduce((acc, current) =>{
-        //     const key = `${current.regDate.substring(8,10)}-${current.type}`;
-            
-        //     if(!acc[key]){
-        //         acc[key] = {
-        //             // date: current.regDate,
-        //             // type: current.type,
-        //             day: current.regDate.substring(8,10),
-        //             money: 0
-        //         };
-        //     }
-        //     acc[key].money += current.money;
-
-        //     return acc;
-        // }, {});
-        
-
-        // const result = Object.values(groupedData);
-        
-        // console.log("\nresult::: "+ result);
-
-        const lastMoney = [];
-        const lastCount = Object.keys(lastMonth);
-
-        for(let i=0; i < lastCount.length; i++){
-            lastMoney.push(lastMonth[i].money);
+        let k = 1;
+        for(let i=0; i < thisDate; i++){
+            for(k; k <= thisDate; k++){
+                try {
+                    if(k == parseInt(thisMonth[i].date.substring(8,10))){
+                        thisArr.push(thisMonth[i].money);
+                        break;
+                    } else {
+                        thisArr.push(0);
+                    }
+                } catch (error) {
+                    thisArr.push(0);
+                }
+            }
+            k ++;
         }
+
+        //지날달 구하기
+        const lastDate = String(intYear) + "-" + String(intMonth);
+        
+        const lastMonth = await Amount
+        .aggregate([
+            {
+                $match: {
+                    username: user._id,
+                    regDate: {
+                        $regex:lastDate
+                    },
+                    type: 'out'
+                }
+            },
+            {
+                $group: {
+                _id: '$regDate',
+                date: { $first: '$regDate' },
+                money:{
+                    $sum: '$money'
+                }
+                }
+            },
+            {
+                $sort: { date: 1 }
+            },
+            {
+                $project: { _id: 0 }
+            }
+            ]);
+
+        //지난달 마지막day 얻기
+        let lastDay = new Date(year, month-1, 0).getDate();
+
+        let lastArr =[];
+        let j = 1;
+        for(let i=0; i<lastDay; i++){
+            for(j; j<=lastDay; j++){
+                try {
+                    if(j == parseInt(lastMonth[i].date.substring(8,10))){
+                        lastArr.push(lastMonth[i].money);
+                        break;
+                    } else {
+                        lastArr.push(0);
+                    }
+                } catch (error) {
+                    lastArr.push(0);
+                }
+            }
+            j ++;
+        }
+
+        console.log("\nlastArr:: "+lastArr);
+        console.log("\nthisArr:: "+thisArr);
 
         return res.json({
             result: "Y",
             code: 200,
             message: "Success",
-            data: [{
-                date: {
-                    year: intYear,
-                    month: intMonth
+            series: [
+                {
+                    name: "last_month",
+                    data: lastArr
                 },
-                money: lastMoney
-            },{
-                date: {
-                    year: year,
-                    month: month
+                {
+                    name: "this_month",
+                    data: thisArr
                 }
-            }]
+            ]
         });
     } catch (error) {
         return res.json({
@@ -390,6 +414,11 @@ export const calendar = async (req,res) => {
             $project: { _id: 0 }
         }
         ]);
+
+        let count = Object.keys(daily);
+        for(let i=0; i< count.length; i++){
+            console.log("\ndaily:: " + JSON.stringify(daily[i]))
+        }
 
         return res.json({
             result: "Y",
