@@ -1,4 +1,3 @@
-//import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -8,10 +7,6 @@ const userSchema = new mongoose.Schema({
   badge: { type: String },
   goal_nm: { type: String }
 });
-
-// userSchema.pre('save', async function () {
-//   this.password = await bcrypt.hash(this.password, 5);
-// });
 
 const User = mongoose.model("User", userSchema);
 

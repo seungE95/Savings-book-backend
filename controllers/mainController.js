@@ -2,16 +2,17 @@ import Amount from "../models/amount.js"
 import User from "../models/user.js"
 import Goal from "../models/goal.js"
 
+//당월 총 수입/지출
 export const monthTotal = async(req,res) => {
-    const {username} = req.decoded;
-    const {year, month} = req.query;
+    const { username } = req.decoded;
+    const { year, month } = req.query;
     const date = year + "-" + month;
     
     if(year == null || month == null){
         return res.json({
             result: "N",
             code: 400,
-            message: "날짜를 입력해주세요"
+            message: "Fail: 날짜를 입력해주세요"
         })
     }
     try {
@@ -23,7 +24,9 @@ export const monthTotal = async(req,res) => {
         .select('type');
 
         const count = Object.keys(amount);
+        //당월 총 지출금
         let out = 0;
+        //당월 총 수입금
         let income = 0;
 
         for(let i=0; i<count.length; i++){
@@ -53,11 +56,12 @@ export const monthTotal = async(req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail"
+            message: "Fail"
         });
     }
 };
 
+//당월 목표 금액 조회
 export const getGoal = async (req, res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
@@ -68,13 +72,15 @@ export const getGoal = async (req, res) => {
             const user = await User.findOne({username: username});            
             const goal = await Goal.findOne({username: user._id, regDate:date});
             
+            //"YYYY-MM-DD"에서 year 값만 추출
             const resYear = goal.regDate.substring(0,4);
+            //"YYYY-MM-DD"에서 month 값만 추출
             const resMonth = goal.regDate.substring(5,7);
             
             return res.json({
                 result: "Y",
                 code: 200,
-                message: "목표 금액 전송 완료",
+                message: "Success",
                 data: {
                     date:{
                         year: resYear,
@@ -88,11 +94,12 @@ export const getGoal = async (req, res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "해당 날짜에 목표 금액이 없음",
+            message: "Fail: 해당 날짜에 목표 금액이 없음",
         });
     }
 }
 
+//당월 목표 금액 작성
 export const postGoal = async (req,res) => {
     const { username } = req.decoded;
     const { year, month, goal_money } = req.body;
@@ -106,18 +113,19 @@ export const postGoal = async (req,res) => {
         return res.json({
             result: "Y",
             code: 200,
-            message: "목표 금액 생성 성공"
+            message: "Success"
         })
     } catch (error) {
         return res.json({
             result: "N",
             code: 400,
-            message: "목표 금액 생성 실패",
+            message: "Fail",
             error: error
         });
     }
 }
 
+//당월 목표 금액 수정
 export const putGoal = async (req,res) => {
     const { username } = req.decoded;
     const { year, month, goal_money } = req.body;
@@ -130,18 +138,19 @@ export const putGoal = async (req,res) => {
         return res.json({
             result: "Y",
             code: 200,
-            message: "목표 금액 수정 성공"
+            message: "Success"
         })
     } catch (error) {
         return res.json({
             result: "N",
             code: 400,
-            message: "목표 금액 수정 실패",
+            message: "Fail",
             error: error
         });
     }
 }
 
+//카테고리 별 지출 퍼센트
 export const category = async (req,res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
@@ -158,6 +167,7 @@ export const category = async (req,res) => {
 
         const count = Object.keys(category)
         
+        //total: 백분율 구할때 필요, 나머지는 카테고리 변수들
         let total = 0, eat = 0, cafe = 0, pleasure = 0, shopping = 0, etc = 0;
 
         for(let i=0; i<count.length; i++){
@@ -217,12 +227,13 @@ export const category = async (req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail"
+            message: "Fail"
         })
     }
 
 }
 
+//전월/당월 일별 지출 리스트(라인그래프)
 export const dailylist = async (req,res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
@@ -240,7 +251,7 @@ export const dailylist = async (req,res) => {
 
     try {
         const user = await User.findOne({ username:username });
-        const thisMonth = await Amount//.find()
+        const thisMonth = await Amount
         .aggregate([
             {
                 $match: {
@@ -268,33 +279,29 @@ export const dailylist = async (req,res) => {
             }
         ]);
 
+        //이번달 마지막날 추출 ex)29일, 30일, 31일
         let thisDate = new Date(year, month, 0).getDate();
-        
+        //이번달 일별 총 지출금 배열에 담기
         let thisArr =[];
-        // for(let i=0; i<thisDate; i++){
-        //     try {
-        //         if(i+1 == parseInt(thisMonth[i].date.substring(8,10))){
-        //             thisArr.push(thisMonth[i].money);
-        //         } 
-        //     } catch {
-        //         thisArr.push(0);
-        //     }
-        // }
-
         let k = 1;
+
         for(let i=0; i < thisDate; i++){
             for(k; k <= thisDate; k++){
                 try {
+                    //k 1부터 마지막날 까지 증가, 지출이 있는날 배열에 금액 push
                     if(k == parseInt(thisMonth[i].date.substring(8,10))){
                         thisArr.push(thisMonth[i].money);
                         break;
                     } else {
+                        //지출이 없는날은 0 값을 push
                         thisArr.push(0);
                     }
                 } catch (error) {
+                    //thisMonth에 저장된 금액이 더 없을 경우 나머지 값을 0으로 채움
                     thisArr.push(0);
                 }
             }
+            //날짜 초기값을 증가 시켜서 지난일 부터 반복하지 않도록함
             k ++;
         }
 
@@ -331,22 +338,26 @@ export const dailylist = async (req,res) => {
 
         //지난달 마지막day 얻기
         let lastDay = new Date(year, month-1, 0).getDate();
-
+        //지난달 일별 총 지출금 배열에 담기
         let lastArr =[];
         let j = 1;
         for(let i=0; i<lastDay; i++){
             for(j; j<=lastDay; j++){
                 try {
+                    //j 1부터 마지막날 까지 증가, 지출이 있는날 배열에 금액 push
                     if(j == parseInt(lastMonth[i].date.substring(8,10))){
                         lastArr.push(lastMonth[i].money);
                         break;
                     } else {
+                        //지출이 없는날은 0 값을 push
                         lastArr.push(0);
                     }
                 } catch (error) {
+                    //lastMonth에 저장된 금액이 더 없을 경우 나머지 값을 0으로 채움
                     lastArr.push(0);
                 }
             }
+            //날짜 초기값을 증가 시켜서 지난일 부터 반복하지 않도록함
             j ++;
         }
 
@@ -354,7 +365,7 @@ export const dailylist = async (req,res) => {
             result: "Y",
             code: 200,
             message: "Success",
-            series: [
+            data: [
                 {
                     name: "last_month",
                     data: lastArr
@@ -369,11 +380,12 @@ export const dailylist = async (req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail"
+            message: "Fail"
         });
     }
 }
 
+//당월 일별 총 수입/지출 리스트(캘린더)
 export const calendar = async (req,res) => {
     const { username } = req.decoded;
     const { year, month } = req.query;
@@ -388,42 +400,7 @@ export const calendar = async (req,res) => {
         .where('regDate').equals({$regex:date})
         .sort('regDate');
 
-
-
-        // .aggregate([
-        //     {
-        //         $match: {
-        //             username: user._id,
-        //             regDate: {
-        //                 $regex:date
-        //             },
-        //             type: {
-        //                 $ne: null
-        //             }
-        //         }
-        //     },
-        //     {
-        //         $group: {
-        //             _id: ['$regDate', '$type'],
-        //             date: { $last: '$regDate' },
-        //             type: { $last: '$type' },
-        //             money:{
-        //                 $sum: '$money'
-        //             }
-        //         }
-        //     },
-        //     {
-        //         $sort: { date : 1 }
-        //     },
-        //     {
-        //         $project: { _id: 0 }
-        //     }
-        // ]);
-
         // 빈 객체를 생성하여 거래를 그룹화하고 합산합니다.
-
-        console.log("\ndaily:: "+JSON.stringify(daily))
-
         const groupedTransactions = {};
 
         for (const transaction of daily) {
@@ -454,12 +431,12 @@ export const calendar = async (req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail",
-            error: error
+            message: "Fail"
         })
     }
 }
 
+//당월 특정 일 수입/지출 상세보기
 export const getDetails = async (req, res) => {
     const { username } = req.decoded;
     const { year, month, day } = req.query;
@@ -482,13 +459,13 @@ export const getDetails = async (req, res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail",
-            error: error
+            message: "Fail"
         })
     }
 
 }
 
+//당월 특정 일 수입/지출 작성
 export const postDetails = async (req, res) => {
     const { username } = req.decoded;
     const { year, month, day, type, money, content, category } = req.body;
@@ -501,18 +478,19 @@ export const postDetails = async (req, res) => {
         return res.json({
             result: "Y",
             code: 200,
-            message: "특정 일 수입/지출 저장 완료"
+            message: "Success"
         });
     } catch (error) {
         return res.json({
             result: "N",
             code: 400,
-            message: "특정 일 수입/지출 저장 실패",
+            message: "Fail",
             error: error
         })
     }
 }
 
+//당월 특정 일 수입/지출 수정
 export const putDetails = async (req,res) => {
     const { username } = req.decoded;
     const { year, month, day, amount_nm, type, money, content, category } = req.body;
@@ -531,12 +509,12 @@ export const putDetails = async (req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail",
-            error: error
+            message: "fail"
         })
     }
 }
 
+//당월 특정 일 수입/지출 삭제
 export const deleteDetails = async (req,res) => {
     const { username } = req.decoded;
     const { amount_nm } = req.query;
@@ -549,7 +527,7 @@ export const deleteDetails = async (req,res) => {
             return res.json({
                 result: "N",
                 code: 400,
-                message: "일치하는 정보가 데이터가 없습니다"
+                message: "Fail: 일치하는 정보가 데이터가 없습니다"
             })
         }
 
@@ -562,8 +540,7 @@ export const deleteDetails = async (req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail",
-            error: error
+            message: "fail"
         })
     }
 }

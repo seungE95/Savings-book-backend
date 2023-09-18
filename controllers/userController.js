@@ -18,7 +18,7 @@ export const login = async (req, res) => {
         return res.json({
             result: "N",
             code: 401,
-            message: "아이디가 일치하지 않습니다."
+            message: "Fail: 아이디가 일치하지 않습니다."
         })
     } else {
         const isEqualPw = await bcrypt.compare(password, user.password);
@@ -33,7 +33,7 @@ export const login = async (req, res) => {
                 },
                 key,
                 {
-                    expiresIn: "360m",   //15분후 만료
+                    expiresIn: "15m",   //15분후 만료
                     issuer: "토큰발급자",
                 }
             );
@@ -47,7 +47,7 @@ export const login = async (req, res) => {
             return res.json({
                 result: "N",
                 code: 401,
-                message: "비밀번호가 일치하지 않습니다."
+                message: "Fail: 비밀번호가 일치하지 않습니다."
             });
         }
     }
@@ -65,13 +65,13 @@ export const signup = async (req, res) => {
         return res.json({
             result: "Y",
             code: 200,
-            message: "회원가입 성공"
+            message: "Success"
         })
     } else {
         return res.json({
             result: "N",
             code: 400,
-            message: "이미 아이디가 존재합니다."
+            message: "Fail"
         });
     }
 }
@@ -89,21 +89,20 @@ export const nickname = async (req, res) => {
         return res.json({
             result: "Y",
             code: 200,
-            message: "닉네임 변경 완료"
+            message: "Success"
         });
     } catch (error){
         return res.json({
             result: "N",
             code: 400,
-            message: "닉네임 변경 실패",
+            message: "Fail",
         });
     }
     
 }
 
 export const userdata = async (req,res) => {
-    const {username, nick_name} = req.decoded;
-    console.log("\nusername:: "+username+"\nnick_name:: "+nick_name);
+    const { username } = req.decoded;
 
     try {
         const user = await User.findOne({username:username})
@@ -121,7 +120,7 @@ export const userdata = async (req,res) => {
         return res.json({
             result: "N",
             code: 400,
-            message: "fail",
+            message: "Fail",
             error: error
         });
     }
