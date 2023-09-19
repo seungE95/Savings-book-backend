@@ -597,7 +597,7 @@ export const badge = async (req,res) => {
         if(cnt == 1){
             month_1 = 1;
         }
-
+        console.log("\ncnt/3:: "+cnt/3);
         switch(cnt/3){
             case 1:
                 month_3 = 1;
