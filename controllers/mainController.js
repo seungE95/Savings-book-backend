@@ -601,12 +601,15 @@ export const badge = async (req,res) => {
         switch(Math.floor(cnt/3)){
             case 1:
                 month_3 = 1;
+                month_1 = 1;
                 break;
             case 2:
                 month_6 = 1;
+                month_1 = 1;
                 break;
             case 4:
                 month_12 = 1;
+                month_1 = 1;
                 break;
         }
 
