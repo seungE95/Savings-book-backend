@@ -135,8 +135,8 @@ export const deleteUser = async (req,res) => {
     try {
         const user = await User.findOneAndDelete({username: username});
         console.log("\nuser._id:: "+user._id);
-        await Amount.deleteOne({username: user._id});
-        await Goal.deleteOne({username: user._id});
+        await Amount.deleteMany({username: user._id});
+        await Goal.deleteMany({username: user._id});
 
         return res.json({
             result: "Y",
