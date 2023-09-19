@@ -545,10 +545,87 @@ export const deleteDetails = async (req,res) => {
     }
 }
 
+export const badge = async (req,res) => {
+    const { username } = req.decoded;
 
-/*
-    ======보류=======
-*/
-// export const badge = (req,res) => {
-//     res.send("badge");
-// }
+    let nowDate = new Date();
+    let lastYear = nowDate.getFullYear();
+    let lastMonth = nowDate.getMonth()+1;
+
+    nowDate = lastYear + lastMonth;
+    console.log("\nnowDate:: " + nowDate);
+
+    try {
+        const user = await User.findOne({username: username});
+
+        const goal = await Goal.find({username: user._id})
+        .sort('regDate');
+        
+        const amount = await Amount.find({username: user._id, type:'out'})
+        .select('regDate money')
+        .sort('regDate');
+        
+        const goalCount = Object.keys(goal);
+        const amountCount = Object.keys(amount);
+        
+        let totalMoney=0,cnt=0;
+
+        let date = parseInt(goal[goalCount.length-1].regDate.substring(0,4)) +
+        parseInt(goal[goalCount.length-1].regDate.substring(5,7));
+        
+        console.log("\ndate:: "+ date);
+        console.log("\ngoalCount.length:: "+ goalCount.length);
+        //
+        if( date == nowDate && goalCount.length > 1){
+            console.log("\n여기:: ");
+            for(let i=0; i<goalCount.length-1; i++){
+                for(let j=0; j<amountCount.length; j++){
+                    console.log("\ngoal::"+goal[i].regDate+"\namount::"+amount[j].regDate.substring(0,7))
+                    if(goal[i].regDate == amount[j].regDate.substring(0,7)){
+                        totalMoney += amount[j].money;
+                        console.log("\ntotalMoney:: "+totalMoney)
+                    }
+                }
+                if(goal[i].goal_money >= totalMoney)
+                    cnt++;
+                    console.log('\ncnt:: '+ cnt);
+            }
+        }
+
+        let month_1=0,month_3=0,month_6=0,month_12=0;
+
+        if(cnt == 1){
+            month_1 = 1;
+        }
+
+        switch(cnt/3){
+            case 1:
+                month_3 = 1;
+                break;
+            case 2:
+                month_6 = 1;
+                break;
+            case 4:
+                month_12 = 1;
+                break;
+        }
+
+        return res.json({
+            result: "Y",
+            code: 200,
+            message: "Success",
+            data: {
+                month_1: month_1,
+                month_3: month_3,
+                month_6: month_6,
+                month_12: month_12
+            }
+        })
+    } catch (error) {
+        return res.json({
+            result: "N",
+            code: 400,
+            message: "Fail"
+        })
+    }
+}

@@ -11,7 +11,7 @@ import {
     postDetails,
     putDetails,
     deleteDetails,
-    //badge
+    badge
 } from "../controllers/mainController.js";
 import { auth } from "../authMiddleware.js";    //token 유효성 검증
 
@@ -23,6 +23,6 @@ mainRouter.get("/category", auth, category);
 mainRouter.get("/dailylist", auth, dailylist);
 mainRouter.get("/calendar", auth, calendar);
 mainRouter.route("/details").get(auth, getDetails).post(auth, postDetails).put(auth, putDetails).delete(auth, deleteDetails);
-//mainRouter.get("badge", badge);
+mainRouter.get("/badge", auth, badge);
 
 export default mainRouter;
