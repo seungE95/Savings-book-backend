@@ -553,7 +553,6 @@ export const badge = async (req,res) => {
     let lastMonth = nowDate.getMonth()+1;
 
     nowDate = lastYear + lastMonth;
-    console.log("\nnowDate:: " + nowDate);
 
     try {
         const user = await User.findOne({username: username});
@@ -573,44 +572,36 @@ export const badge = async (req,res) => {
         let date = parseInt(goal[goalCount.length-1].regDate.substring(0,4)) +
         parseInt(goal[goalCount.length-1].regDate.substring(5,7));
         
-        console.log("\ndate:: "+ date);
-        console.log("\ngoalCount.length:: "+ goalCount.length);
-        //
+        //당월 제외 목표 금액 달성 여부
         if( date == nowDate && goalCount.length > 1){
-            console.log("\n여기:: ");
             for(let i=0; i<goalCount.length-1; i++){
                 for(let j=0; j<amountCount.length; j++){
-                    console.log("\ngoal::"+goal[i].regDate+"\namount::"+amount[j].regDate.substring(0,7))
                     if(goal[i].regDate == amount[j].regDate.substring(0,7)){
                         totalMoney += amount[j].money;
-                        console.log("\ntotalMoney:: "+totalMoney)
                     }
                 }
                 if(goal[i].goal_money >= totalMoney)
                     cnt++;
-                    console.log('\ncnt:: '+ cnt);
             }
         }
 
         let month_1=0,month_3=0,month_6=0,month_12=0;
 
-        if(cnt == 1){
+        console.log("\ncnt:: "+ cnt);
+        if(4 <= (cnt/3)){
             month_1 = 1;
-        }
-        console.log("\ncnt/3:: "+Math.floor(cnt/3));
-        switch(Math.floor(cnt/3)){
-            case 1:
-                month_3 = 1;
-                month_1 = 1;
-                break;
-            case 2:
-                month_6 = 1;
-                month_1 = 1;
-                break;
-            case 4:
-                month_12 = 1;
-                month_1 = 1;
-                break;
+            month_3 = 1;
+            month_6 = 1;
+            month_12 = 1;
+        } else if(2 <= (cnt/3)){
+            month_1 = 1;
+            month_3 = 1;
+            month_6 = 1;
+        } else if(1 <= (cnt/3)){
+            month_1 = 1;
+            month_3 = 1;
+        } else if(0 < cnt){
+            month_1 = 1;
         }
 
         return res.json({

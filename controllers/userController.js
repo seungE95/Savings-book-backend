@@ -155,7 +155,6 @@ export const deleteUser = async (req,res) => {
 export const randomquiz = async (req,res) => {
 
     const num = Math.floor(Math.random() * 3) + 1;
-    console.log("\nrandom:: " + num);
 
     try {
 
